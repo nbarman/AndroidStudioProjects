@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">EazyEdu</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="heading">Welcome to EazyEdu</string>
+    <string name="label_text1">Top Universities in United States and their Rankings</string>
+
+    <string name="action_settings">Settings</string>
+</resources>
