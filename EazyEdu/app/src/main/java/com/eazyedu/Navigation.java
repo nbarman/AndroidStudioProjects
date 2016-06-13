@@ -1,5 +1,6 @@
 package com.eazyedu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -79,14 +80,12 @@ public class Navigation extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+       // NavigationView navView = (NavigationView) findViewById(R.id.nav_contact_us);
 
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        if (id == R.id.nav_contact_us) {
+            // Handle the contact us action
+            Intent intent = new Intent(this, ContactUs.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_share) {
 
