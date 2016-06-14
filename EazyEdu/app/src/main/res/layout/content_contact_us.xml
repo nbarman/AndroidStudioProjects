@@ -4,31 +4,72 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:background="@drawable/contact_us_background"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_contact_us" tools:context="com.eazyedu.ContactUs">
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/label_contact_name"
-        android:id="@+id/text_name"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/text_email"
-        android:layout_marginTop="54dp" />
+    <EditText
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/label_your_name"
+        android:ems="10"
+        android:layout_above="@+id/email_Text"
+        android:id="@+id/name_Text"
+        android:visibility="visible" />
+
+    <EditText
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:inputType="textWebEmailAddress"
+        android:hint="@string/label_your_email"
+        android:ems="10"
+        android:layout_above="@+id/message_Text"
+        android:id="@+id/email_Text" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textLongMessage"
+        android:hint="Enter your question"
+        android:ems="10"
+        android:layout_above="@+id/submit_button"
+        android:id="@+id/message_Text" />
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Send Message"
+        android:paddingTop="@dimen/activity_horizontal_margin"
+        android:id="@+id/submit_button"
+        android:layout_above="@+id/eazyedu_email"
+        android:layout_alignStart="@+id/eazyedu_email"
+        android:textStyle="bold"
+        android:theme="@style/Widget.AppCompat.Light.ActionButton"
+        android:focusable="true"
+        android:enabled="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/label_contact_email"
-        android:id="@+id/text_email"
-        android:layout_below="@+id/text_name"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/eazyedu_email"
+        android:layout_above="@+id/imageView2"
+        android:layout_marginBottom="58dp"
+        android:clickable="false" />
+
+
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:id="@+id/imageView2"
+        android:src="@drawable/contact_us"
+        android:requiresFadingEdge="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/eazyedu_email"
+        android:layout_marginBottom="70dp" />
 
 
 </RelativeLayout>
