@@ -83,7 +83,7 @@ public class ContactUs extends AppCompatActivity{
                      *  The fields are populated. Send the Email message
                      */
 
-                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "notapassword");
+                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "nopassword");
 
                     // Setting the attributes of the mail
 

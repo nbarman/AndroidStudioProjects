@@ -3,9 +3,9 @@ package com.eazyedu;
 import java.util.Date;
 import java.util.Properties;
 import javax.activation.CommandMap;
-import javax.activation.DataHandler;
+/*import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
+import javax.activation.FileDataSource;*/
 import javax.activation.MailcapCommandMap;
 import javax.mail.BodyPart;
 import javax.mail.Multipart;
@@ -57,7 +57,7 @@ public class EazyMail extends javax.mail.Authenticator {
         _subject = ""; // email subject
         _body = ""; // email body
 
-        _debuggable = false; // debug mode on or off - default off
+        _debuggable = true; // debug mode on or off - default off
         _auth = true; // smtp authentication - default on
 
         _multipart = new MimeMultipart();
