@@ -19,6 +19,14 @@ import android.util.Log;
 import android.os.AsyncTask;
 import java.lang.StringBuilder;
 
+/**
+ * This class handles all the contact request forms
+ * NOTE: Email does not work with proxy servers
+ * EazyEdu All Rights Reserved
+ *
+ * Developer : Namit Mohan Barman
+ *
+ */
 
 public class ContactUs extends AppCompatActivity{
 

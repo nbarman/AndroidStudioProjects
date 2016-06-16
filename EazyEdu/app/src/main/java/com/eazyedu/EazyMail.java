@@ -20,7 +20,7 @@ import javax.mail.Authenticator;
 
 
 /**
- * This class is used for sending email without the need for a mail client
+ * This class is used for sending email without the need for a mail client using JavaMail
  * Src courtsey : http://www.jondev.net/articles/Sending_Emails_without_User_Intervention_(no_Intents)_in_Android
  * Created by namitmohanbarman on 6/15/16.
  */
