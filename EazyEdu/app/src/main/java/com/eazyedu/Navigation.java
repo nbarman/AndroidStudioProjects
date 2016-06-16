@@ -87,7 +87,10 @@ public class Navigation extends AppCompatActivity
             Intent intent = new Intent(this, ContactUs.class);
             startActivity(intent);
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_view_blog) {
+
+            Intent intent = new Intent(this, ViewBlog.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_send) {
 

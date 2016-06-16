@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.eazyedu" >
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/eazyedu_small_icon"
@@ -25,6 +27,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Navigation" />
+        </activity>
+        <activity
+            android:name=".ViewBlog"
+            android:label="@string/title_activity_view_blog"
+            android:parentActivityName=".Navigation"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.eazyedu.Navigation" />
         </activity>
     </application>
 
