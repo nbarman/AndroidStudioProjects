@@ -33,14 +33,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="textLongMessage"
-        android:hint="Enter your question"
+        android:hint="@string/label_your_question"
         android:ems="10"
         android:layout_above="@+id/submit_button"
         android:id="@+id/message_Text" />
     <Button
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="Send Message"
+        android:text="@string/send_message"
         android:paddingTop="@dimen/activity_horizontal_margin"
         android:id="@+id/submit_button"
         android:layout_above="@+id/eazyedu_email"
