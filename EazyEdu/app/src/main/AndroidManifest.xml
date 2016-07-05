@@ -6,8 +6,10 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/eazyedu_small_icon"
+        android:icon="@mipmap/eazyicon_eazyedu"
         android:label="EazyEdu"
+        android:versionCode = "1"
+        android:versionName = "v1.1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity

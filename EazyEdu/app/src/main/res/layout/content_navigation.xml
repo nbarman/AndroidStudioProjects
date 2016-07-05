@@ -12,7 +12,7 @@
 
 
     <ImageView android:layout_width="wrap_content" android:layout_height="200dp"
-        android:src="@mipmap/img1_eazyedu" android:id="@+id/main_img"
+        android:src="@drawable/eazy_edu_banner_v4" android:id="@+id/main_img"
         android:scaleType="fitCenter"/>
 
     <ImageView
@@ -21,14 +21,19 @@
         android:id="@+id/icon_img"
         android:src="@drawable/img_logo_eazyedu"
         android:layout_alignLeft="@+id/horizontal_div"
+        android:paddingTop="@dimen/activity_horizontal_margin"
         android:layout_below="@+id/main_img"
         android:layout_marginEnd="209dp" />
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="@string/heading" android:paddingTop="220dp"
+        android:text="@string/heading"
+        android:layout_below="@+id/main_img"
+        android:paddingTop="@dimen/activity_horizontal_margin"
         android:textColor="#14368D" android:textAllCaps="false" android:textAlignment="center"
         android:textStyle="italic|bold" android:id="@+id/welcome_text" android:textSize="25dp"
         android:layout_alignParentRight="@+id/icon_img"/>
+
+    <!-- Horizontal Seperator line -->
 
     <View
         android:layout_width="fill_parent"
