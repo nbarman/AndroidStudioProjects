@@ -15,4 +15,7 @@
     <string name="title_activity_contact_us">Contact Us</string>
     <string name="title_activity_view_blog">View Blog</string>
     <string name="url_facebook_like">https://www.facebook.com/EasyEduGuide/?ref=aymt_homepage_panel</string>
+    <string name="title_activity_search_tabbed">Search</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="search_hint">Search for Colleges</string>
 </resources>

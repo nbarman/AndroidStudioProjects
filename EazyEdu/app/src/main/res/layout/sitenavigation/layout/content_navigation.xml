@@ -12,7 +12,7 @@
 
 
     <ImageView android:layout_width="wrap_content" android:layout_height="200dp"
-        android:src="@drawable/eazy_edu_banner_v4" android:id="@+id/main_img"
+        android:src="@drawable/eazy_edu_final_banner" android:id="@+id/main_img"
         android:scaleType="fitCenter"/>
 
     <ImageView

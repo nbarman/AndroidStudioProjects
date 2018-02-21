@@ -8,10 +8,10 @@
         android:allowBackup="true"
         android:icon="@mipmap/eazyicon_eazyedu"
         android:label="EazyEdu"
-        android:versionCode = "1"
-        android:versionName = "v1.1"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:versionCode="2"
+        android:versionName="1.2" >
         <activity
             android:name=".Navigation"
             android:label="EazyEdu"
@@ -38,6 +38,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.eazyedu.Navigation" />
+        </activity>
+        <activity
+            android:name=".CustomSearch"
+            android:parentActivityName=".Navigation"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

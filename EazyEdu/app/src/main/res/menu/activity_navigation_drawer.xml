@@ -6,6 +6,8 @@
             android:title="Leave a Question"/>
         <item android:id="@+id/nav_view_blog" android:icon="@drawable/blog_icon"
             android:title="View Our Blog"/>
+        <item android:id="@+id/nav_search" android:icon="@drawable/search_icon"
+            android:title="Search Colleges"/>
     </group>
 
     <item android:title="Share">

@@ -15,9 +15,9 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.eazyedu.EazyMail;
-import android.util.Log;
 import android.os.AsyncTask;
 import java.lang.StringBuilder;
+import android.view.Gravity;
 
 /**
  * This class handles all the contact request forms
@@ -83,7 +83,7 @@ public class ContactUs extends AppCompatActivity{
                      *  The fields are populated. Send the Email message
                      */
 
-                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "nopassword");
+                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "Nmbbeginsws4");
 
                     // Setting the attributes of the mail
 
@@ -100,9 +100,6 @@ public class ContactUs extends AppCompatActivity{
                             try{
                                 send_mail_status = mail.send();
                             }catch(Exception e) {
-                                //Toast.makeText(MailApp.this, "There was a problem sending the email.", Toast.LENGTH_LONG).show();
-                                //Toast.makeText(ContactUs.this, "Fatal Error!! Exception", Toast.LENGTH_LONG).show();
-                                Log.e("ContactUs", "Could not send email", e);
                             }
                         return null;
                         }
@@ -125,7 +122,9 @@ public class ContactUs extends AppCompatActivity{
 
 
                     if(true) {
-                        Toast.makeText(ContactUs.this, "Your message has been submitted! We will get back to you soon!", Toast.LENGTH_LONG).show();
+                        Toast confirm_msg = Toast.makeText(ContactUs.this, "Your message has been submitted! We will get back to you soon!", Toast.LENGTH_LONG);
+                        confirm_msg.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+                        confirm_msg.show();
                     } else {
                         Toast.makeText(ContactUs.this, "Email was not send", Toast.LENGTH_LONG).show();
                     }
@@ -159,9 +158,6 @@ public class ContactUs extends AppCompatActivity{
         // automatically handles clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

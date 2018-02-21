@@ -89,9 +89,16 @@ public class Navigation extends AppCompatActivity
             startActivity(intent);
 
         } else if (id == R.id.nav_like_fb) {
+
             String fb_Url = getString(R.string.url_facebook_like);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fb_Url));
             startActivity(browserIntent);
+
+        } else if(id == R.id.nav_search){
+
+            Intent intent = new Intent(this, CustomSearch.class);
+            startActivity(intent);
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
