@@ -20,13 +20,13 @@
             android:clickable="false"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <!--<SearchView
+            <SearchView
                 android:id="@+id/searchView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:iconifiedByDefault="false"
                 android:queryHint="Search"
-                android:layout_centerHorizontal="true" /> -->
+                android:layout_centerHorizontal="true" />
 
         </android.support.v7.widget.Toolbar>
 

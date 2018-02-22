@@ -18,4 +18,6 @@
     <string name="title_activity_search_tabbed">Search</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="search_hint">Search for Colleges</string>
+    <string name="univ_details">University</string>
+    <string name="univ_loc_details">Place</string>
 </resources>

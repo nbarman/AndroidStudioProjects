@@ -1,5 +1,9 @@
 package com.eazyedu;
 
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
@@ -11,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +24,11 @@ public class CustomSearch extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout tabLayout;
+    private String pQeury = "";
+    private int[] tabIcons = {
+            R.drawable.ic_university_details,
+            R.drawable.ic_university_location
+    };
 
 
 
@@ -32,25 +42,13 @@ public class CustomSearch extends AppCompatActivity {
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
-
-        //setupViewPager(viewPager);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        SearchView sv = (SearchView)findViewById(R.id.searchView);
+        sv.setSearchableInfo(searchableInfo);
 
 
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        }); */
 
     }
 
@@ -58,24 +56,63 @@ public class CustomSearch extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search_tabbed, menu);
+        /*getMenuInflater().inflate(R.menu.menu_search_tabbed, menu);
         Log.d("Lognam1", "I am here");
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search_items).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, CustomSearchEngine.class)));
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName())); */
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.search_items) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            if(pQeury!=null && !pQeury.equalsIgnoreCase(query)) {
+                setpQeury(query);
+                Log.d("Lognam2", query);
+
+                // Set up the ViewPager with the sections adapter.
+                mViewPager = (ViewPager) findViewById(R.id.viewpager);
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+                mViewPager.setAdapter(mSectionsPagerAdapter);
+                tabLayout = (TabLayout) findViewById(R.id.tabs);
+                tabLayout.setupWithViewPager(mViewPager);
+                setupTabIcons();
+            }
+        }
+    }
+
+    private void setupTabIcons() {
+        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
+        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+    }
+
+
+    public String getpQeury() {
+        return pQeury;
+    }
+
+    public void setpQeury(String pQeury) {
+        this.pQeury = pQeury;
     }
 
 
@@ -87,8 +124,8 @@ public class CustomSearch extends AppCompatActivity {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
-        private final String UNIVERSITY_DETAILS = "University Details";
-        private final String UNIVERSITY_LOCATION = "Location Details";
+        private final String UNIVERSITY_DETAILS = "University";
+        private final String UNIVERSITY_LOCATION = "Place";
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -129,7 +166,6 @@ public class CustomSearch extends AppCompatActivity {
 
 
 
-
     /**
      * University Details Fragment #1
      * Fragment containing details of the University searched for
@@ -160,11 +196,6 @@ public class CustomSearch extends AppCompatActivity {
                             }
            */
         }
-
-
-
-
-
 
 
 
