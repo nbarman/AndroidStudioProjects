@@ -25,6 +25,7 @@ public class CustomSearch extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout tabLayout;
     private String pQeury = "";
+    CustomSearchEngine cSearchEngine;
     private int[] tabIcons = {
             R.drawable.ic_university_details,
             R.drawable.ic_university_location
@@ -89,6 +90,14 @@ public class CustomSearch extends AppCompatActivity {
             if(pQeury!=null && !pQeury.equalsIgnoreCase(query)) {
                 setpQeury(query);
                 Log.d("Lognam2", query);
+
+                String queries[] = {query};
+
+                //Calls the Custom Search Engine for the search
+                if(cSearchEngine==null) {
+                    cSearchEngine = new CustomSearchEngine();
+                }
+                cSearchEngine.execute(queries);
 
                 // Set up the ViewPager with the sections adapter.
                 mViewPager = (ViewPager) findViewById(R.id.viewpager);
