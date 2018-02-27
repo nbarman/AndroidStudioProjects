@@ -15,15 +15,22 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class CustomSearch extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private WebView webView_Search;
     private TabLayout tabLayout;
+    private ProgressBar pBar;
     private String pQeury = "";
     CustomSearchEngine cSearchEngine;
     private int[] tabIcons = {
@@ -34,12 +41,14 @@ public class CustomSearch extends AppCompatActivity {
 
 
     @Override
+    @JavascriptInterface
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_home);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.search_toolbar);
         setSupportActionBar(toolbar);
+        pBar = (ProgressBar) findViewById(R.id.sLoading);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -48,26 +57,44 @@ public class CustomSearch extends AppCompatActivity {
 
         SearchView sv = (SearchView)findViewById(R.id.searchView);
         sv.setSearchableInfo(searchableInfo);
+        webView_Search = findViewById(R.id.webView_search);
+        webView_Search.getSettings().setJavaScriptEnabled(true);
+        Log.d("Lognam1", "Here now step 1");
+        webView_Search.addJavascriptInterface(new LoadListener(this), "HtmlViewer");
 
+        WebViewClient wvClient = new WebViewClient(){
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                Log.d("Lognam1", "Here now");
+                view.loadUrl("javascript:window.HtmlViewer.processHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+            }};
+        webView_Search.setWebViewClient(wvClient);
 
+        webView_Search.loadUrl("https://www.usnews.com/best-colleges/university-of-maine-2053");
+    }
 
+    /**
+     *
+     */
+    class LoadListener{
+
+        private Context ctx;
+        public LoadListener(Context ctx){
+            Log.d("Lognam1", "Inside Load Listener constructor");
+            this.ctx = ctx;
+
+        }
+
+        @JavascriptInterface
+        public void processHTML(String html)
+        {
+            Log.d("Lognam1", html);
+        }
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        /*getMenuInflater().inflate(R.menu.menu_search_tabbed, menu);
-        Log.d("Lognam1", "I am here");
-
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.search_items).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, CustomSearchEngine.class)));
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName())); */
         return true;
     }
 
@@ -88,25 +115,32 @@ public class CustomSearch extends AppCompatActivity {
         if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             if(pQeury!=null && !pQeury.equalsIgnoreCase(query)) {
+                pBar.setVisibility(ProgressBar.VISIBLE);
+
                 setpQeury(query);
-                Log.d("Lognam2", query);
-
                 String queries[] = {query};
+                try {
+                    //Calls the Custom Search Engine for the search async
+                    cSearchEngine = new CustomSearchEngine(CustomSearch.this, webView_Search);
+                    cSearchEngine.execute(queries).get();
+                } catch(InterruptedException | ExecutionException exception){
+                    //Handle exception here
 
-                //Calls the Custom Search Engine for the search
-                if(cSearchEngine==null) {
-                    cSearchEngine = new CustomSearchEngine();
                 }
-                cSearchEngine.execute(queries);
-
-                // Set up the ViewPager with the sections adapter.
-                mViewPager = (ViewPager) findViewById(R.id.viewpager);
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                tabLayout = (TabLayout) findViewById(R.id.tabs);
-                tabLayout.setupWithViewPager(mViewPager);
-                setupTabIcons();
             }
+        }
+    }
+
+    public void onCallBack(String errorCode){
+        pBar.setVisibility(ProgressBar.INVISIBLE);
+        if(errorCode.equalsIgnoreCase("00")) {
+            // Set up the ViewPager with the sections adapter.
+            mViewPager = (ViewPager) findViewById(R.id.viewpager);
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+            tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(mViewPager);
+            setupTabIcons();
         }
     }
 

@@ -30,6 +30,13 @@
 
         </android.support.v7.widget.Toolbar>
 
+            <ProgressBar
+                android:id="@+id/sLoading"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+
             <android.support.v4.view.ViewPager
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/viewpager"
@@ -45,5 +52,14 @@
                 app:tabGravity="center"/>
 
     </android.support.design.widget.AppBarLayout>
+
+
+    <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/webView_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/blog_banner"
+        android:visibility="invisible"
+        />
 
 </android.support.design.widget.CoordinatorLayout>
