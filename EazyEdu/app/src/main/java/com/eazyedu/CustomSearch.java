@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 public class CustomSearch extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    private WebView webView_Search;
     private TabLayout tabLayout;
     private ProgressBar pBar;
     private String pQeury = "";
@@ -57,39 +56,6 @@ public class CustomSearch extends AppCompatActivity {
 
         SearchView sv = (SearchView)findViewById(R.id.searchView);
         sv.setSearchableInfo(searchableInfo);
-        webView_Search = findViewById(R.id.webView_search);
-        webView_Search.getSettings().setJavaScriptEnabled(true);
-        Log.d("Lognam1", "Here now step 1");
-        webView_Search.addJavascriptInterface(new LoadListener(this), "HtmlViewer");
-
-        WebViewClient wvClient = new WebViewClient(){
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                Log.d("Lognam1", "Here now");
-                view.loadUrl("javascript:window.HtmlViewer.processHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
-            }};
-        webView_Search.setWebViewClient(wvClient);
-
-        webView_Search.loadUrl("https://www.usnews.com/best-colleges/university-of-maine-2053");
-    }
-
-    /**
-     *
-     */
-    class LoadListener{
-
-        private Context ctx;
-        public LoadListener(Context ctx){
-            Log.d("Lognam1", "Inside Load Listener constructor");
-            this.ctx = ctx;
-
-        }
-
-        @JavascriptInterface
-        public void processHTML(String html)
-        {
-            Log.d("Lognam1", html);
-        }
     }
 
 
@@ -121,7 +87,7 @@ public class CustomSearch extends AppCompatActivity {
                 String queries[] = {query};
                 try {
                     //Calls the Custom Search Engine for the search async
-                    cSearchEngine = new CustomSearchEngine(CustomSearch.this, webView_Search);
+                    cSearchEngine = new CustomSearchEngine(CustomSearch.this);
                     cSearchEngine.execute(queries).get();
                 } catch(InterruptedException | ExecutionException exception){
                     //Handle exception here

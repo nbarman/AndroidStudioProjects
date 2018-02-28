@@ -34,13 +34,13 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private BufferedReader bReader;
+    private Document htmlDoc;
     private CustomSearch cSearchMain;
-    private WebView webView_Search;
-
-    public CustomSearchEngine(CustomSearch cSearchMain, WebView webView_Search){
+    private String searchData;
+    private final String EMPTY_STRING = "";
+    public CustomSearchEngine(CustomSearch cSearchMain){
 
         this.cSearchMain = cSearchMain;
-        this.webView_Search = webView_Search;
     }
 
     /**
@@ -74,31 +74,20 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
             Log.d("Lognam2", link);
 
-            Document htmlDoc = Jsoup.connect(link).get();
-            String description =
-                    htmlDoc.select("meta[name=description]").get(0)
-                            .attr("content");
-            sLocation = htmlDoc.select("meta[data-school-name="+sName.trim()+"]").get(0)
-                    .attr("data-school-location");
-            Log.d("Lognam2", sLocation);
+            htmlDoc = Jsoup.connect(link).get();
+            setSearchData(htmlDoc.text());
 
-            webView_Search.getSettings().setJavaScriptEnabled(true);
-            webView_Search.addJavascriptInterface(new LoadListener(), "HtmlViewer");
 
-            WebViewClient wvClient = new WebViewClient(){
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    Log.d("Lognam2", "Here now");
-                    view.loadUrl("javascript:window.HtmlViewer.processHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
-            }};
-            webView_Search.setWebViewClient(wvClient);
-
-            webView_Search.loadUrl(link);
+            Log.d("Lognam2", searchData);
 
 
 
-        } catch(IOException exception){
-            Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! IOEXCEPTION detected : "+ exception);
+
+
+
+
+
+
         } catch (JSONException exception){
             Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! JSONEXCEPTION detected "+ exception);
         } catch( Exception exception){
@@ -138,14 +127,25 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     }
 
 
+    public String getSearchData() {
+        return searchData;
+    }
+
+    public void setSearchData(String searchData) {
+        this.searchData = searchData;
+    }
+
+
     protected void onProgressUpdate() {
         //called when the background task makes any progress
     }
 
     protected void onPreExecute() {
         //called before doInBackground() is started
+        setSearchData(EMPTY_STRING);
     }
     protected void onPostExecute(String link){
+        setSearchData(EMPTY_STRING);
         try{
             if(urlConnection!=null && bReader!=null) {
                 urlConnection.disconnect();
@@ -160,20 +160,4 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         }
     }
 
-}
-
-/**
- *
- */
-class LoadListener{
-
-    public LoadListener(){
-        Log.d("Lognam2", "Inside Load Listener constructor");
-    }
-
-    @JavascriptInterface
-    public void processHTML(String html)
-    {
-        Log.d("Lognam2", "END Engine");
-    }
 }
