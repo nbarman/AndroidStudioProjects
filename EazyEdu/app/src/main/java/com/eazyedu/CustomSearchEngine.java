@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by namitmohanbarman on 2/20/18.
@@ -33,10 +35,14 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
+    private static final String SEARCH_PATTERN_1 = "Research\\s*Universities";
+    private static final String SEARCH_PATTERN_2 = "Free\\s*Issues\\s*of\\s*Forbes";
     private BufferedReader bReader;
     private Document htmlDoc;
     private CustomSearch cSearchMain;
     private String searchData;
+    private int strTrimIndex;
+
     private final String EMPTY_STRING = "";
     public CustomSearchEngine(CustomSearch cSearchMain){
 
@@ -75,15 +81,23 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             Log.d("Lognam2", link);
 
             htmlDoc = Jsoup.connect(link).get();
-            setSearchData(htmlDoc.text());
+            //Log.d("Lognam2", htmlDoc.text());
+
+            setStrTrimIndex(searchPatternMatch(htmlDoc.text(),CustomSearchEngine.SEARCH_PATTERN_1));
+            setSearchData(htmlDoc.text().substring(0,getStrTrimIndex()).trim());
+
+            setStrTrimIndex(searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_2));
+            setSearchData(getSearchData().substring(getStrTrimIndex(),getSearchData().length()).trim());
+
+            Log.d("Lognam2" , getSearchData());
+            int index = searchPatternMatch(getSearchData(),"^123\\\\d{9}$");
 
 
-            Log.d("Lognam2", searchData);
+
+            Log.d("Lognam2","Index is "+index);
 
 
-
-
-
+            String sData[] = searchData.split("\\s+");
 
 
 
@@ -93,7 +107,24 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         } catch( Exception exception){
             Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! Exception detected "+ exception);
         }
-            return link;
+        return link;
+    }
+
+    public int searchPatternMatch(String searchStr, String searchPatternStr){
+
+        Pattern searchPattern = Pattern.compile(searchPatternStr);
+        Matcher matchSearchPattern = searchPattern.matcher(searchStr);
+        int matchPatternIndex;
+        //Check all occurances of the searchPattern
+
+        while(matchSearchPattern.find()){
+
+            matchPatternIndex = matchSearchPattern.end();
+            if(matchPatternIndex > 0){
+                return matchPatternIndex;
+            }
+        }
+        return -1;
     }
 
     public String getDataFromUrl(URL url){
@@ -116,6 +147,16 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         }
 
         return sResponse.toString().trim();
+    }
+
+
+
+    public int getStrTrimIndex() {
+        return strTrimIndex+1;
+    }
+
+    public void setStrTrimIndex(int strTrimIndex) {
+        this.strTrimIndex = strTrimIndex;
     }
 
     public String getSearchQuery() {
