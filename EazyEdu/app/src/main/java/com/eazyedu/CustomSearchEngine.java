@@ -33,6 +33,11 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private HttpURLConnection urlConnection;
     private static final String SEARCH_PATTERN_TRIM_1 = "Research\\s*Universities";
     private static final String SEARCH_PATTERN_TRIM_2 = "Free\\s*Issues\\s*of\\s*Forbes";
+    private static final String SEARCH_PATTERN_HYPERLINK = "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+                                                            + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
+                                                            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)";
+    private static final String SEARCH_PATTERN_PH_NUMBER = "[^0-9]*";
+
     private BufferedReader bReader;
     private UniversityDetailsBean uDetailsBean;
     private UniversityLocationBean uLocationBean;
@@ -42,7 +47,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private int strTrimIndex;
     private int startStrTrimIndex;
     private int endStrTrimIndex;
-    private int searchTrimIndices[];
+    private int searchOccuranceIndices[];
 
     private final String EMPTY_STRING = "";
     public CustomSearchEngine(CustomSearch cSearchMain){
@@ -60,6 +65,16 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     @Override
     @JavascriptInterface
     public String  doInBackground(String... queries){
+
+        String status = getUniversityDetailsFromSearch(uDetailsBean,queries);
+
+
+        return status;
+    }
+
+    private String getUniversityDetailsFromSearch(UniversityDetailsBean uDetailsBean, String... queries){
+
+
         setSearchQuery(queries[0]);
         String link = "";
         String sResponse, lResponse, sName=getSearchQuery(), sLocation="";
@@ -72,6 +87,11 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
             sResponse = getDataFromUrl(url);
 
+            if(sResponse==null || sResponse.isEmpty()){
+
+                return "Empty Response from Search";
+            }
+
             JSONObject jsonOutput = new JSONObject(sResponse);
             JSONArray items = jsonOutput.getJSONArray("items");
 
@@ -82,65 +102,94 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
             htmlDoc = Jsoup.connect(link).get();
             Log.d("Lognam2" , "University name is:: "+jsonOutput.getString("title"));
+            uDetailsBean.setUnivName(jsonOutput.getString("title"));
             setSearchData(htmlDoc.text()); //Use Instance String variable to manipulate
 
+            //searchOccuranceIndices contains two values [matchIndexBegin.....matchIndexEnd]
+            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_1, "PSHTRIM01");
+            setSearchData(getSearchData().substring(0, searchOccuranceIndices[1]).trim());
+
+            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_2,"PSHTRIM02");
+            setSearchData(getSearchData().substring(searchOccuranceIndices[1],getSearchData().length()).trim());
 
 
+            searchOccuranceIndices = searchPatternMatch(getSearchData(),SEARCH_PATTERN_PH_NUMBER,"PSHPHNUMBER");
 
-            //searchTrimIndices contains two values [matchIndexBegin.....matchIndexEnd]
-            searchTrimIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_1, "PSHTRIM01");
-            setSearchData(getSearchData().substring(0,searchTrimIndices[1]).trim());
+            if(searchOccuranceIndices[0] > -1 && searchOccuranceIndices[1] > -1){
 
-            searchTrimIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_2,"PSHTRIM02");
-            setSearchData(getSearchData().substring(searchTrimIndices[1],getSearchData().length()).trim());
+                uDetailsBean.setPhoneNumber(getSearchData().substring(searchOccuranceIndices[1]-1, searchOccuranceIndices[1]+12));
+                uDetailsBean.setUnivLocation(getSearchData().substring(searchOccuranceIndices[0], searchOccuranceIndices[1]-1));
+            } else{
+                uDetailsBean.setPhoneNumber("Not Available");
+            }
 
-            //Log.d("Lognam2","Data is :: "+getSearchData());
+            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_HYPERLINK,"PSHHYPERLINK");
+            uDetailsBean.setUnivURL(getSearchData().substring(searchOccuranceIndices[0], searchOccuranceIndices[1]));
 
-            searchTrimIndices = searchPatternMatch(getSearchData(),"[^0-9]*","PSH004");
+            if(uDetailsBean.getPhoneNumber().equals("Not Available")){
 
-            Log.d("Lognam2"," University Place is : "+getSearchData().substring(searchTrimIndices[0],searchTrimIndices[1]-1));
-
-            Log.d("Lognam2", "Phone number is : "+getSearchData().substring(searchTrimIndices[1]-1,searchTrimIndices[1]+12));
-
-
-
-
-
-            String sData[] = searchData.split("\\s+");
+                uDetailsBean.setUnivLocation(getSearchData().substring(0, searchOccuranceIndices[0]));
+            }
 
 
+            Log.d("Lognam2","Data is this :: "+getSearchData());
 
+            searchOccuranceIndices = searchPatternMatch(getSearchData(),SEARCH_PATTERN_PH_NUMBER,"PSHPHNUMBER");
+
+            Log.d("Lognam2"," University Place is : "+uDetailsBean.getUnivLocation());
+
+            Log.d("Lognam2", "Phone number is : "+uDetailsBean.getPhoneNumber());
+
+            Log.d("Lognam2", " Hyperlink is " + uDetailsBean.getUnivURL());
 
         } catch (JSONException exception){
             Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! JSONEXCEPTION detected "+ exception);
+            return "fail";
         } catch( Exception exception){
             Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! Exception detected "+ exception);
+            return "fail";
         }
-        return link;
+
+        return "success";
+
     }
 
-    public int[] searchPatternMatch(String searchStr, String searchPatternStr, String pSearchCode){
 
-        int trimIndices[] = {-1,-1};
-        Pattern searchPattern = Pattern.compile(searchPatternStr);
+
+    private int[] searchPatternMatch(String searchStr, String searchPatternStr, String pSearchCode){
+
+        int sOccIndices[] = {-1,-1};
+        Pattern searchPattern = null;
+        if(pSearchCode.equals("PSHHYPERLINK")){
+            searchPattern = Pattern.compile(searchPatternStr,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        } else {
+            searchPattern = Pattern.compile(searchPatternStr);
+        }
         Matcher matchSearchPattern = searchPattern.matcher(searchStr);
         //Check the occurance of the searchPattern
         if(matchSearchPattern.find()){
 
-            trimIndices[0] = matchSearchPattern.start();
-            trimIndices[1] = matchSearchPattern.end();
+            sOccIndices[0] = matchSearchPattern.start();
+            sOccIndices[1] = matchSearchPattern.end();
             //Log.d("Lognam2" , "Indices are "+ trimIndices[0]+"::"+trimIndices[1]);
         } else if( pSearchCode.equals("PSHTRIM01") || pSearchCode.equals("PSHTRIM02")){
             // The place holders are not available. We go the long way
-            trimIndices[0] = 0;
-            trimIndices[1] = searchStr.length();
+            sOccIndices[0] = 0;
+            sOccIndices[1] = searchStr.length();
         }
-        //Log.d("Lognam2", "Indices are "+ trimIndices[0]+"::"+trimIndices[1]+"::"+pSearchCode);
+
+        if(pSearchCode.equals("PSHPHNUMBER") && (matchSearchPattern.start()>=100 || matchSearchPattern.end()>=100)){
+
+            sOccIndices[0] = -1;
+            sOccIndices[1] = -1;
+        }
+        Log.d("Lognam2", "Indices are "+ sOccIndices[0]+"::"+sOccIndices[1]+"::"+pSearchCode);
         matchSearchPattern.reset();
-        return trimIndices;
+        return sOccIndices;
     }
 
-    public String getDataFromUrl(URL url){
+    private String getDataFromUrl(URL url){
         String lineText;
         StringBuilder sResponse = new StringBuilder();
 
