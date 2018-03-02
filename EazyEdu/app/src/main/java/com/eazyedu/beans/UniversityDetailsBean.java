@@ -12,6 +12,15 @@ public class UniversityDetailsBean {
     private String univRanking;
     private Map univFees;
     private String univLocation;
+    private String phoneNumber;
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getUnivLocation() {
         return univLocation;

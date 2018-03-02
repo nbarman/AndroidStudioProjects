@@ -1,21 +1,17 @@
 package com.eazyedu;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import com.eazyedu.beans.UniversityDetailsBean;
+import com.eazyedu.beans.UniversityLocationBean;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,17 +31,24 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
-    private static final String SEARCH_PATTERN_1 = "Research\\s*Universities";
-    private static final String SEARCH_PATTERN_2 = "Free\\s*Issues\\s*of\\s*Forbes";
+    private static final String SEARCH_PATTERN_TRIM_1 = "Research\\s*Universities";
+    private static final String SEARCH_PATTERN_TRIM_2 = "Free\\s*Issues\\s*of\\s*Forbes";
     private BufferedReader bReader;
+    private UniversityDetailsBean uDetailsBean;
+    private UniversityLocationBean uLocationBean;
     private Document htmlDoc;
     private CustomSearch cSearchMain;
     private String searchData;
     private int strTrimIndex;
+    private int startStrTrimIndex;
+    private int endStrTrimIndex;
+    private int searchTrimIndices[];
 
     private final String EMPTY_STRING = "";
     public CustomSearchEngine(CustomSearch cSearchMain){
 
+        uDetailsBean = new UniversityDetailsBean();
+        uLocationBean = new UniversityLocationBean();
         this.cSearchMain = cSearchMain;
     }
 
@@ -63,8 +66,6 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
         try {
             String encodedQuery = URLEncoder.encode(getSearchQuery(), "utf-8");
-            //String encodedQuery = "Cleveland%20State%20University";
-            Log.d("Lognam2", "Encoded Query is "+encodedQuery);
             URL url = new URL("https://www.googleapis.com/customsearch/v1?"+
                     "key="+ API_KEY +"&cx="+SEARCH_ENGINE_ID+"&q="+ encodedQuery +
                     "&exactTerms="+encodedQuery);
@@ -77,24 +78,32 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             jsonOutput = new JSONObject(items.getString(0));
 
             link = jsonOutput.getString("link");
-
-            Log.d("Lognam2", link);
+            Log.d("Lognam2" , link);
 
             htmlDoc = Jsoup.connect(link).get();
-            //Log.d("Lognam2", htmlDoc.text());
-
-            setStrTrimIndex(searchPatternMatch(htmlDoc.text(),CustomSearchEngine.SEARCH_PATTERN_1));
-            setSearchData(htmlDoc.text().substring(0,getStrTrimIndex()).trim());
-
-            setStrTrimIndex(searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_2));
-            setSearchData(getSearchData().substring(getStrTrimIndex(),getSearchData().length()).trim());
-
-            Log.d("Lognam2" , getSearchData());
-            int index = searchPatternMatch(getSearchData(),"^123\\\\d{9}$");
+            Log.d("Lognam2" , "University name is:: "+jsonOutput.getString("title"));
+            setSearchData(htmlDoc.text()); //Use Instance String variable to manipulate
 
 
 
-            Log.d("Lognam2","Index is "+index);
+
+            //searchTrimIndices contains two values [matchIndexBegin.....matchIndexEnd]
+            searchTrimIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_1, "PSHTRIM01");
+            setSearchData(getSearchData().substring(0,searchTrimIndices[1]).trim());
+
+            searchTrimIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_2,"PSHTRIM02");
+            setSearchData(getSearchData().substring(searchTrimIndices[1],getSearchData().length()).trim());
+
+            //Log.d("Lognam2","Data is :: "+getSearchData());
+
+            searchTrimIndices = searchPatternMatch(getSearchData(),"[^0-9]*","PSH004");
+
+            Log.d("Lognam2"," University Place is : "+getSearchData().substring(searchTrimIndices[0],searchTrimIndices[1]-1));
+
+            Log.d("Lognam2", "Phone number is : "+getSearchData().substring(searchTrimIndices[1]-1,searchTrimIndices[1]+12));
+
+
+
 
 
             String sData[] = searchData.split("\\s+");
@@ -110,21 +119,25 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         return link;
     }
 
-    public int searchPatternMatch(String searchStr, String searchPatternStr){
+    public int[] searchPatternMatch(String searchStr, String searchPatternStr, String pSearchCode){
 
+        int trimIndices[] = {-1,-1};
         Pattern searchPattern = Pattern.compile(searchPatternStr);
         Matcher matchSearchPattern = searchPattern.matcher(searchStr);
-        int matchPatternIndex;
-        //Check all occurances of the searchPattern
+        //Check the occurance of the searchPattern
+        if(matchSearchPattern.find()){
 
-        while(matchSearchPattern.find()){
-
-            matchPatternIndex = matchSearchPattern.end();
-            if(matchPatternIndex > 0){
-                return matchPatternIndex;
-            }
+            trimIndices[0] = matchSearchPattern.start();
+            trimIndices[1] = matchSearchPattern.end();
+            //Log.d("Lognam2" , "Indices are "+ trimIndices[0]+"::"+trimIndices[1]);
+        } else if( pSearchCode.equals("PSHTRIM01") || pSearchCode.equals("PSHTRIM02")){
+            // The place holders are not available. We go the long way
+            trimIndices[0] = 0;
+            trimIndices[1] = searchStr.length();
         }
-        return -1;
+        //Log.d("Lognam2", "Indices are "+ trimIndices[0]+"::"+trimIndices[1]+"::"+pSearchCode);
+        matchSearchPattern.reset();
+        return trimIndices;
     }
 
     public String getDataFromUrl(URL url){
