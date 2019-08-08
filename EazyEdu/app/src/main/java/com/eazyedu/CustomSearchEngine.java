@@ -116,14 +116,14 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             searchData = searchData.replaceAll("\\p{P}","");
             searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_PH_NUMBER,null, "SEARCH_PHONE_NO");
             String phNumber =  searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
-            phNumber = phNumber.replaceAll("\\s\\w","");
+            phNumber = phNumber.replaceAll("\\s","");
 
             if(phNumber.length()<=10){
                 //format the phone number
                 StringBuilder formattedPhNumber = new StringBuilder();
                 for(int i = 0;i<phNumber.length();i++){
 
-                    if(i%3 ==0 && i<= 6){
+                    if(i%3 ==0 && i>0 && i<= 6){
                     formattedPhNumber.append('-');
                     }
                     formattedPhNumber.append(phNumber.charAt(i));
@@ -137,7 +137,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             }
             String location = searchData.substring(0,searchOccuranceIndices[0]);
             uDetailsBean.setUnivLocation(location.trim());
-            Log.d("phNumber", phNumber);
+            //Log.d("phNumber", phNumber);
 
         } catch (JSONException exception){
             int d = Log.d("doInBackground: ", "FATAL! JSONEXCEPTION detected " + exception);
