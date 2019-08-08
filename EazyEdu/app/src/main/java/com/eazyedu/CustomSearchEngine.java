@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,12 +32,12 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
-    private static final String SEARCH_PATTERN_TRIM_1 = "Research\\s*Universities";
-    private static final String SEARCH_PATTERN_TRIM_2 = "Free\\s*Issues\\s*of\\s*Forbes";
+    private static final String SEARCH_PATTERN_TRIM_1 = "Billionaire\\sSecrets";
+    private static final String SEARCH_PATTERN_TRIM_2 = "At\\sa\\sGlance";
     private static final String SEARCH_PATTERN_HYPERLINK = "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
-                                                            + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
-                                                            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)";
-    private static final String SEARCH_PATTERN_PH_NUMBER = "[^0-9]*";
+            + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
+            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)";
+    private static final String SEARCH_PATTERN_PH_NUMBER = "\\d{3}\\s\\d{7}";
 
     private BufferedReader bReader;
     private UniversityDetailsBean uDetailsBean;
@@ -78,6 +79,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         setSearchQuery(queries[0]);
         String link = "";
         String sResponse, lResponse, sName=getSearchQuery(), sLocation="";
+        String searchData = null;
 
         try {
             String encodedQuery = URLEncoder.encode(getSearchQuery(), "utf-8");
@@ -98,55 +100,50 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             jsonOutput = new JSONObject(items.getString(0));
 
             link = jsonOutput.getString("link");
-            Log.d("Lognam2" , link);
-
             htmlDoc = Jsoup.connect(link).get();
             Log.d("Lognam2" , "University name is:: "+jsonOutput.getString("title"));
             uDetailsBean.setUnivName(jsonOutput.getString("title"));
-            setSearchData(htmlDoc.text()); //Use Instance String variable to manipulate
+            searchData = htmlDoc.text(); //Use Instance String variable to manipulate
 
             //searchOccuranceIndices contains two values [matchIndexBegin.....matchIndexEnd]
-            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_1, "PSHTRIM01");
-            setSearchData(getSearchData().substring(0, searchOccuranceIndices[1]).trim());
+            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_TRIM_1,CustomSearchEngine.SEARCH_PATTERN_TRIM_2, "SEARCH_PATTERN_TRIM");
+            searchData = searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
+            Log.d("searchData: ", searchData);
+            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_HYPERLINK,null,"SEARCH_LINK");
+            String hLink = searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
+            uDetailsBean.setUnivURL(hLink.trim());
+            searchData = searchData.replaceAll("[\\-\\+\\.\\^:,]","");
+            searchData = searchData.replaceAll("\\p{P}","");
+            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_PH_NUMBER,null, "SEARCH_PHONE_NO");
+            String phNumber =  searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
+            phNumber = phNumber.replaceAll("\\s\\w","");
 
-            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_TRIM_2,"PSHTRIM02");
-            setSearchData(getSearchData().substring(searchOccuranceIndices[1],getSearchData().length()).trim());
+            if(phNumber.length()<=10){
+                //format the phone number
+                StringBuilder formattedPhNumber = new StringBuilder();
+                for(int i = 0;i<phNumber.length();i++){
 
+                    if(i%3 ==0 && i<= 6){
+                    formattedPhNumber.append('-');
+                    }
+                    formattedPhNumber.append(phNumber.charAt(i));
 
-            searchOccuranceIndices = searchPatternMatch(getSearchData(),SEARCH_PATTERN_PH_NUMBER,"PSHPHNUMBER");
+                }
+                Log.d("phNumber", formattedPhNumber.toString());
+                uDetailsBean.setPhoneNumber(formattedPhNumber.toString());
 
-            if(searchOccuranceIndices[0] > -1 && searchOccuranceIndices[1] > -1){
-
-                uDetailsBean.setPhoneNumber(getSearchData().substring(searchOccuranceIndices[1]-1, searchOccuranceIndices[1]+12));
-                uDetailsBean.setUnivLocation(getSearchData().substring(searchOccuranceIndices[0], searchOccuranceIndices[1]-1));
             } else{
-                uDetailsBean.setPhoneNumber("Not Available");
+                uDetailsBean.setPhoneNumber("000");
             }
-
-            searchOccuranceIndices = searchPatternMatch(getSearchData(),CustomSearchEngine.SEARCH_PATTERN_HYPERLINK,"PSHHYPERLINK");
-            uDetailsBean.setUnivURL(getSearchData().substring(searchOccuranceIndices[0], searchOccuranceIndices[1]));
-
-            if(uDetailsBean.getPhoneNumber().equals("Not Available")){
-
-                uDetailsBean.setUnivLocation(getSearchData().substring(0, searchOccuranceIndices[0]));
-            }
-
-
-            Log.d("Lognam2","Data is this :: "+getSearchData());
-
-            searchOccuranceIndices = searchPatternMatch(getSearchData(),SEARCH_PATTERN_PH_NUMBER,"PSHPHNUMBER");
-
-            Log.d("Lognam2"," University Place is : "+uDetailsBean.getUnivLocation());
-
-            Log.d("Lognam2", "Phone number is : "+uDetailsBean.getPhoneNumber());
-
-            Log.d("Lognam2", " Hyperlink is " + uDetailsBean.getUnivURL());
+            String location = searchData.substring(0,searchOccuranceIndices[0]);
+            uDetailsBean.setUnivLocation(location.trim());
+            Log.d("phNumber", phNumber);
 
         } catch (JSONException exception){
-            Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! JSONEXCEPTION detected "+ exception);
+            int d = Log.d("doInBackground: ", "FATAL! JSONEXCEPTION detected " + exception);
             return "fail";
         } catch( Exception exception){
-            Log.d("doInBackground: "+CustomSearchEngine.class, "FATAL! Exception detected "+ exception);
+            int d = Log.d("doInBackground: ", "FATAL! Exception detected "+ exception);
             return "fail";
         }
 
@@ -156,36 +153,50 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
 
 
-    private int[] searchPatternMatch(String searchStr, String searchPatternStr, String pSearchCode){
+    private int[] searchPatternMatch(String searchStr, String searchPatternStrt, String searchPatternEnd, String pSearchCode){
 
         int sOccIndices[] = {-1,-1};
         Pattern searchPattern = null;
-        if(pSearchCode.equals("PSHHYPERLINK")){
-            searchPattern = Pattern.compile(searchPatternStr,
+        Matcher matchSearchPattern= null;
+        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("SEARCH_PATTERN_TRIM")) {
+            searchPattern = Pattern.compile(searchPatternStrt,
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-        } else {
-            searchPattern = Pattern.compile(searchPatternStr);
-        }
-        Matcher matchSearchPattern = searchPattern.matcher(searchStr);
-        //Check the occurance of the searchPattern
-        if(matchSearchPattern.find()){
+            matchSearchPattern= searchPattern.matcher(searchStr);
+            //Check the occurance of the searchPattern
+            if (matchSearchPattern.find()) {
 
-            sOccIndices[0] = matchSearchPattern.start();
-            sOccIndices[1] = matchSearchPattern.end();
-            //Log.d("Lognam2" , "Indices are "+ trimIndices[0]+"::"+trimIndices[1]);
-        } else if( pSearchCode.equals("PSHTRIM01") || pSearchCode.equals("PSHTRIM02")){
-            // The place holders are not available. We go the long way
-            sOccIndices[0] = 0;
-            sOccIndices[1] = searchStr.length();
+                sOccIndices[0] = matchSearchPattern.end();
+            }
+
+            searchPattern = Pattern.compile(searchPatternEnd,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
+            matchSearchPattern = searchPattern.matcher(searchStr);
+            //Check the occurance of the searchPattern
+            if (matchSearchPattern.find()) {
+
+                sOccIndices[1] = matchSearchPattern.start();
+            }
+        } else if(pSearchCode!=null && (pSearchCode.equalsIgnoreCase("SEARCH_PHONE_NO")
+                    || pSearchCode.equalsIgnoreCase("SEARCH_LINK"))){
+
+            searchPattern = Pattern.compile(searchPatternStrt,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            matchSearchPattern= searchPattern.matcher(searchStr);
+            //Check the occurance of the searchPattern
+            if (matchSearchPattern.find()) {
+
+                sOccIndices[0] = matchSearchPattern.start();
+                sOccIndices[1] = matchSearchPattern.end();
+            }
         }
 
-        if(pSearchCode.equals("PSHPHNUMBER") && (matchSearchPattern.start()>=100 || matchSearchPattern.end()>=100)){
 
-            sOccIndices[0] = -1;
-            sOccIndices[1] = -1;
+
+        Log.d("Start: End", sOccIndices[0]+"::" + sOccIndices[1]);
+        if(matchSearchPattern!=null) {
+            matchSearchPattern.reset();
         }
-        Log.d("Lognam2", "Indices are "+ sOccIndices[0]+"::"+sOccIndices[1]+"::"+pSearchCode);
-        matchSearchPattern.reset();
         return sOccIndices;
     }
 
@@ -255,7 +266,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 bReader.close();
             }
         }catch(IOException exception){
-            Log.d("onPostExecute : "+CustomSearchEngine.class, "FATAL! IOEXCEPTION detected : "+ exception);
+            Log.d("onPostExecute : ", "FATAL! IOEXCEPTION detected : "+ exception);
         }
 
         if(cSearchMain!= null){
