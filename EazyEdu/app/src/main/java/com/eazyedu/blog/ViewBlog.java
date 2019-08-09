@@ -1,4 +1,4 @@
-package com.eazyedu;
+package com.eazyedu.blog;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,6 +9,8 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebSettings;
+
+import com.eazyedu.R;
 
 public class ViewBlog extends AppCompatActivity {
 

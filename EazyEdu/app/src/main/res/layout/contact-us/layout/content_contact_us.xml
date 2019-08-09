@@ -7,7 +7,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="0dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/activity_contact_us" tools:context="com.eazyedu.ContactUs">
+    tools:showIn="@layout/activity_contact_us" tools:context="com.eazyedu.contactus.ContactUs">
 
 
     <EditText

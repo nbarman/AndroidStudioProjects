@@ -1,4 +1,4 @@
-package com.eazyedu;
+package com.eazyedu.search;
 
 import android.app.SearchManager;
 import android.app.SearchableInfo;
@@ -12,14 +12,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+
+import com.eazyedu.R;
+import com.eazyedu.frag.UniversityDetailsFragment;
+import com.eazyedu.frag.UniversityLocationFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,74 +173,6 @@ public class CustomSearch extends AppCompatActivity {
             return null;
         }
     }
-
-
-
-    /**
-     * University Details Fragment #1
-     * Fragment containing details of the University searched for
-     * Details include Location, Tution fees, Ranking
-     */
-    public static class UniversityDetailsFragment extends Fragment {
-
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public static UniversityDetailsFragment newInstance(int sectionNumber) {
-            UniversityDetailsFragment fragment = new UniversityDetailsFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public UniversityDetailsFragment() {
-        }
-        /*
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-                                View rootView = inflater.inflate(R.layout.content_search_home, container, false);
-                                TextView textView = (TextView) rootView.findViewById(R.id.search_items);
-                                textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-                                return rootView;
-                            }
-           */
-        }
-
-
-
-    /**
-     * University Location Details Fragment #2
-     * Fragment containing details of the location the University is situated in
-     * Details include "Places to see", Airport details
-     */
-    public static class UniversityLocationFragment extends Fragment {
-
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public static UniversityLocationFragment newInstance(int sectionNumber) {
-            UniversityLocationFragment fragment = new UniversityLocationFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public UniversityLocationFragment() {
-        }
-
-        /*
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                                     Bundle savedInstanceState) {
-                                View rootView = inflater.inflate(R.layout.content_search_home, container, false);
-                                TextView textView = (TextView) rootView.findViewById(R.id.search_items);
-                                textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-                                return rootView;
-                            }
-                            */
-    }
-
     /**
      * End of Fragments
      */

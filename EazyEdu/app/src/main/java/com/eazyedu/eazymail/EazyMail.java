@@ -1,4 +1,4 @@
-package com.eazyedu;
+package com.eazyedu.eazymail;
 
 import java.util.Date;
 import java.util.Properties;

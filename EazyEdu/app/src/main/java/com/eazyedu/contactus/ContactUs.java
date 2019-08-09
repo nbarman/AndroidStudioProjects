@@ -1,4 +1,4 @@
-package com.eazyedu;
+package com.eazyedu.contactus;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,9 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.eazyedu.EazyMail;
+import com.eazyedu.eazymail.EazyMail;
+import com.eazyedu.R;
+
 import android.os.AsyncTask;
 import java.lang.StringBuilder;
 import android.view.Gravity;

@@ -15,20 +15,20 @@ public class UniversityDetailsBean {
     private String phoneNumber;
     private String univURL;
 
-    public String getUnivURL() {
-        return univURL;
-    }
-
-    public void setUnivURL(String univURL) {
-        this.univURL = univURL;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getUnivURL() {
+        return univURL;
+    }
+
+    public void setUnivURL(String univURL) {
+        this.univURL = univURL;
     }
 
     public String getUnivLocation() {

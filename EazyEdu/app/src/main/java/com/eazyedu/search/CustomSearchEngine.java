@@ -1,4 +1,4 @@
-package com.eazyedu;
+package com.eazyedu.search;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

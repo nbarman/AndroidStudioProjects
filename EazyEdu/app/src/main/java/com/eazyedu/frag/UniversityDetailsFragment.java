@@ -1,4 +1,8 @@
-package com.eazyedu;
+package com.eazyedu.frag;
+
+/**
+ * Created by namitmohanbarman on 2/20/18.
+ */
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,14 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Created by namitmohanbarman on 2/20/18.
- */
+import com.eazyedu.R;
 
-public class UniversityLocationFragment extends Fragment{
+public class UniversityDetailsFragment extends Fragment {
 
 
-    public UniversityLocationFragment() {
+    public UniversityDetailsFragment() {
         // Required empty public constructor
     }
 
@@ -26,7 +28,7 @@ public class UniversityLocationFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.layout_univ_location_fragment, container, false);
+        return inflater.inflate(R.layout.layout_univ_details_fragment, container, false);
     }
 
 }

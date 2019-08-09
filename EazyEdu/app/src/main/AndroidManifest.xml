@@ -13,7 +13,7 @@
         android:versionCode="2"
         android:versionName="1.2" >
         <activity
-            android:name=".Navigation"
+            android:name=".nav.Navigation"
             android:label="EazyEdu"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -23,25 +23,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ContactUs"
+            android:name=".contactus.ContactUs"
             android:label="@string/title_activity_contact_us"
-            android:parentActivityName=".Navigation" >
+            android:parentActivityName=".nav.Navigation" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Navigation" />
+                android:value=".nav.Navigation" />
         </activity>
         <activity
-            android:name=".ViewBlog"
+            android:name=".blog.ViewBlog"
             android:label="@string/title_activity_view_blog"
-            android:parentActivityName=".Navigation"
+            android:parentActivityName=".nav.Navigation"
             android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.eazyedu.Navigation" />
+                android:value="com.eazyedu.nav.Navigation" />
         </activity>
         <activity
-            android:name=".CustomSearch"
-            android:parentActivityName=".Navigation"
+            android:name=".search.CustomSearch"
+            android:parentActivityName=".nav.Navigation"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
