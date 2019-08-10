@@ -16,22 +16,13 @@
         android:scaleType="fitCenter"/>
 
     <ImageView
+        android:id="@+id/icon_img"
         android:layout_width="60dp"
         android:layout_height="70dp"
-        android:id="@+id/icon_img"
-        android:src="@drawable/img_logo_eazyedu"
-        android:layout_alignLeft="@+id/horizontal_div"
-        android:paddingTop="@dimen/activity_horizontal_margin"
-        android:layout_below="@+id/main_img"
-        android:layout_marginEnd="209dp" />
-
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="@string/heading"
-        android:layout_below="@+id/main_img"
-        android:paddingTop="@dimen/activity_horizontal_margin"
-        android:textColor="#14368D" android:textAllCaps="false" android:textAlignment="center"
-        android:textStyle="italic|bold" android:id="@+id/welcome_text" android:textSize="25dp"
-        android:layout_alignParentRight="@+id/icon_img"/>
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="206dp"
+        android:src="@drawable/ez2_large" />
 
     <!-- Horizontal Seperator line -->
 
@@ -39,6 +30,7 @@
         android:layout_width="fill_parent"
         android:id="@+id/horizontal_div"
         android:layout_height="1dip"
+        android:paddingTop="@dimen/activity_horizontal_margin"
         android:background="#000000"
         android:layout_below="@+id/icon_img"/>
 

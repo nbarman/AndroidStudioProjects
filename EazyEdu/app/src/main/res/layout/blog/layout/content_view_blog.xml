@@ -9,14 +9,21 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_view_blog" tools:context="com.eazyedu.blog.ViewBlog">
 
+    <ProgressBar
+        android:id="@+id/blogProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" />
 
-    <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/webView_blog"
+
+    <TextView
+        android:id="@+id/txtView_blog"
+        android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
         android:layout_above="@+id/blog_banner"
+        android:scrollbars = "vertical"
         />
-
 
     <ImageView
         android:layout_width="wrap_content"

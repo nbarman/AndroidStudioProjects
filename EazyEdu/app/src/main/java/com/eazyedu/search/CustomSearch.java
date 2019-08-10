@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
@@ -89,9 +90,9 @@ public class CustomSearch extends AppCompatActivity {
                 try {
                     //Calls the Custom Search Engine for the search async
                     cSearchEngine = new CustomSearchEngine(CustomSearch.this);
-                    cSearchEngine.execute(queries).get();
+                   String result =  cSearchEngine.execute(queries).get();
                 } catch(InterruptedException | ExecutionException exception){
-                    //Handle exception here
+                    Log.e("FATAL!", exception.getMessage());
 
                 }
             }
