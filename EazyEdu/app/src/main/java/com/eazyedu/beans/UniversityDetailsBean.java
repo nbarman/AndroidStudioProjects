@@ -1,19 +1,23 @@
 package com.eazyedu.beans;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by namitmohanbarman on 2/22/18.
  */
 
-public class UniversityDetailsBean {
+public class UniversityDetailsBean implements Serializable{
 
+    private static final long serialVersionUID = 1L;
     private String univName;
     private String univRanking;
     private Map univFees;
     private String univLocation;
     private String phoneNumber;
     private String univURL;
+
+    public UniversityDetailsBean(){};
 
     public String getPhoneNumber() {
         return phoneNumber;

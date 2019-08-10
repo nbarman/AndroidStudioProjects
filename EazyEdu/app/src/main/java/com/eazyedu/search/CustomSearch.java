@@ -5,6 +5,7 @@ import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,38 +21,57 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.eazyedu.R;
+import com.eazyedu.beans.UniversityDetailsBean;
+import com.eazyedu.beans.UniversityLocationBean;
 import com.eazyedu.frag.UniversityDetailsFragment;
 import com.eazyedu.frag.UniversityLocationFragment;
+import com.eazyedu.utilities.EazyUtils;
+import com.google.api.client.json.Json;
+import com.google.api.client.json.JsonObjectParser;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import org.json.JSONObject;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class CustomSearch extends AppCompatActivity {
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-    private TabLayout tabLayout;
-    private ProgressBar pBar;
-    private String pQeury = "";
-    CustomSearchEngine cSearchEngine;
-    private int[] tabIcons = {
+public class CustomSearch extends AppCompatActivity{
+    private  SectionsPagerAdapter mSectionsPagerAdapter;
+    private  ViewPager mViewPager;
+    private  TabLayout tabLayout;
+
+    private UniversityDetailsBean univDetailsBean;
+    private UniversityLocationBean univLocationBean;
+    private final  String serialClassID = "CUSTOM_SEARCH";
+    private  ProgressBar pBar;
+    private  String pQeury = "";
+    private  CustomSearchEngine cSearchEngine;
+    private  int[] tabIcons = {
             R.drawable.ic_university_details,
             R.drawable.ic_university_location
     };
 
-
+    public CustomSearch(){}
 
     @Override
     @JavascriptInterface
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_home);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.search_toolbar);
         setSupportActionBar(toolbar);
         pBar = (ProgressBar) findViewById(R.id.sLoading);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        UniversityDetailsFragment frag = new UniversityDetailsFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragmentParentViewGroup, new UniversityDetailsFragment())
+                .commit();
+
 
         SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
         SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
@@ -99,6 +119,10 @@ public class CustomSearch extends AppCompatActivity {
         }
     }
 
+    /**
+     * This takes place after the CustomSearchEngine retrieves all the information and then the Fragments are being constructed
+     * @param errorCode
+     */
     public void onCallBack(String errorCode){
         pBar.setVisibility(ProgressBar.INVISIBLE);
         if(errorCode.equalsIgnoreCase("00")) {
@@ -111,6 +135,7 @@ public class CustomSearch extends AppCompatActivity {
             setupTabIcons();
         }
     }
+
 
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
@@ -131,7 +156,7 @@ public class CustomSearch extends AppCompatActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
@@ -147,10 +172,17 @@ public class CustomSearch extends AppCompatActivity {
             switch (index) {
                 case 0:
                     // University Details Fragment
-                    return new UniversityDetailsFragment();
+                    UniversityDetailsFragment univDetailsFrag = new UniversityDetailsFragment();
+                    Bundle univDetailsBundle = new Bundle();
+                    String customUnivDetailsBean = EazyUtils.getGsonParser().toJson(getUnivDetailsBean());
+                    univDetailsBundle.putString("UNIV_DETAILS_BEAN",customUnivDetailsBean);
+                    univDetailsFrag.setArguments(univDetailsBundle);
+                    return univDetailsFrag;
+
                 case 1:
                     // University Location Details Fragment
-                    return new UniversityLocationFragment();
+                    UniversityLocationFragment univLocationFrag = new UniversityLocationFragment();
+                    return univLocationFrag;
 
             }
 
@@ -177,4 +209,20 @@ public class CustomSearch extends AppCompatActivity {
     /**
      * End of Fragments
      */
+
+    public UniversityDetailsBean getUnivDetailsBean() {
+        return univDetailsBean;
+    }
+
+    public void setUnivDetailsBean(UniversityDetailsBean univDetailsBean) {
+        this.univDetailsBean = univDetailsBean;
+    }
+
+    public UniversityLocationBean getUnivLocationBean() {
+        return univLocationBean;
+    }
+
+    public void setUnivLocationBean(UniversityLocationBean univLocationBean) {
+        this.univLocationBean = univLocationBean;
+    }
 }

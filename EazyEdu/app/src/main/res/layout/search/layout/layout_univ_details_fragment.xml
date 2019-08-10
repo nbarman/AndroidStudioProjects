@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_univ_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.eazyedu.frag.UniversityDetailsFragment">
 
     <TextView
+        android:id="@+id/univDetailsTxt"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:text="University Details"
         android:textSize="40dp"
-        android:textStyle="bold"
+        android:textStyle="italic"
+        android:layout_above="@+id/univName"
         android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/univName"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="40dp"
+        android:layout_above="@+id/univLocation"
+        android:textStyle="italic"
+        android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/univLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40dp"
+        android:textStyle="italic"
+        android:layout_above="@+id/univUrl"
+        android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/univUrl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40dp"
+        android:textStyle="italic"
+        android:layout_above="@+id/univPhNumber"
+        android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/univPhNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40dp"
+        android:textStyle="italic"
+        android:layout_centerInParent="true"/>
+
 
 </RelativeLayout>

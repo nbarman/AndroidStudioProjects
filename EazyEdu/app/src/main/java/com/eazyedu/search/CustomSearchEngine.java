@@ -39,7 +39,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private static final String SEARCH_PATTERN_PH_NUMBER = "\\d{3}\\s\\d{7}";
 
     private BufferedReader bReader;
-    private UniversityDetailsBean uDetailsBean;
+
     private UniversityLocationBean uLocationBean;
     private Document htmlDoc;
     private CustomSearch cSearchMain;
@@ -136,6 +136,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             }
             String location = searchData.substring(0,searchOccuranceIndices[0]);
             uDetailsBean.setUnivLocation(location.trim());
+            setuDetailsBean(uDetailsBean);
             //Log.d("phNumber", phNumber);
 
         } catch (JSONException exception){
@@ -249,6 +250,26 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     }
 
 
+
+    public UniversityDetailsBean getuDetailsBean() {
+        return uDetailsBean;
+    }
+
+    public void setuDetailsBean(UniversityDetailsBean uDetailsBean) {
+        this.uDetailsBean = uDetailsBean;
+    }
+
+    private UniversityDetailsBean uDetailsBean;
+
+    public UniversityLocationBean getuLocationBean() {
+        return uLocationBean;
+    }
+
+    public void setuLocationBean(UniversityLocationBean uLocationBean) {
+        this.uLocationBean = uLocationBean;
+    }
+
+
     protected void onProgressUpdate() {
         //called when the background task makes any progress
     }
@@ -269,6 +290,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         }
 
         if(cSearchMain!= null){
+            cSearchMain.setUnivDetailsBean(getuDetailsBean());
             cSearchMain.onCallBack("00"); //Response callback to main activity method
         }
     }
