@@ -9,8 +9,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="University Location"
-        android:textSize="40dp"
+        android:text="University Location Details Coming Soon"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:layout_centerInParent="true"/>
 

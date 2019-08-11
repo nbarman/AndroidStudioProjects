@@ -66,11 +66,6 @@ public class CustomSearch extends AppCompatActivity{
         pBar = (ProgressBar) findViewById(R.id.sLoading);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        UniversityDetailsFragment frag = new UniversityDetailsFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragmentParentViewGroup, new UniversityDetailsFragment())
-                .commit();
 
 
         SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
@@ -104,7 +99,6 @@ public class CustomSearch extends AppCompatActivity{
             String query = intent.getStringExtra(SearchManager.QUERY);
             if(pQeury!=null && !pQeury.equalsIgnoreCase(query)) {
                 pBar.setVisibility(ProgressBar.VISIBLE);
-
                 setpQeury(query);
                 String queries[] = {query};
                 try {
@@ -115,6 +109,8 @@ public class CustomSearch extends AppCompatActivity{
                     Log.e("FATAL!", exception.getMessage());
 
                 }
+            } else {
+                onCallBack("10");
             }
         }
     }
@@ -125,17 +121,77 @@ public class CustomSearch extends AppCompatActivity{
      */
     public void onCallBack(String errorCode){
         pBar.setVisibility(ProgressBar.INVISIBLE);
-        if(errorCode.equalsIgnoreCase("00")) {
-            // Set up the ViewPager with the sections adapter.
+
+        if(errorCode.equals("10")){ //Search query is null
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(),this);
             mViewPager = (ViewPager) findViewById(R.id.viewpager);
-            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-            mViewPager.setAdapter(mSectionsPagerAdapter);
+
+
+            tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(mViewPager);
+            setupTabIcons();
+
+        }
+        if(errorCode.equalsIgnoreCase("00")) {
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(),this);
+            mViewPager = (ViewPager) findViewById(R.id.viewpager);
+            setupViewPager(mViewPager);
+            //mViewPager.setAdapter(mSectionsPagerAdapter);
             tabLayout = (TabLayout) findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
             setupTabIcons();
         }
     }
 
+    /**
+     * Sets up an error pager to show on the fragments
+     * @param viewPager
+     */
+    private void setupErrorViewPager(ViewPager viewPager){
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager(),this);
+
+        /**
+         * Error for Univ Details
+         */
+        UniversityDetailsFragment univDetailsFrag = new UniversityDetailsFragment();
+        Bundle univDetailsBundle = new Bundle();
+        univDetailsBundle.putString("ERROR_CODE","10");
+        univDetailsFrag.setArguments(univDetailsBundle);
+        adapter.addFragment(univDetailsFrag, "University");
+
+        /**
+         * Error for Univ Details
+         */
+        UniversityLocationFragment univLocationFrag = new UniversityLocationFragment();
+        adapter.addFragment(univLocationFrag, "Location");
+        viewPager.setAdapter(adapter);
+
+    }
+
+    /**
+     * Sets up the fragments along with associated params
+     * @param viewPager
+     */
+    private void setupViewPager(ViewPager viewPager){
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager(),this);
+        /**
+         * University Details Fragment
+         */
+                UniversityDetailsFragment univDetailsFrag = new UniversityDetailsFragment();
+                Bundle univDetailsBundle = new Bundle();
+                String customUnivDetailsBean = EazyUtils.getGsonParser().toJson(getUnivDetailsBean());
+                univDetailsBundle.putString("UNIV_DETAILS_BEAN",customUnivDetailsBean);
+                univDetailsBundle.putString("ERROR_CODE","00");
+                univDetailsFrag.setArguments(univDetailsBundle);
+        adapter.addFragment(univDetailsFrag, "University");
+
+        /**
+         * University Location Fragment
+         */
+        UniversityLocationFragment univLocationFrag = new UniversityLocationFragment();
+        adapter.addFragment(univLocationFrag, "Location");
+        viewPager.setAdapter(adapter);
+    }
 
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
@@ -152,60 +208,6 @@ public class CustomSearch extends AppCompatActivity{
     }
 
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-        private final String UNIVERSITY_DETAILS = "University";
-        private final String UNIVERSITY_LOCATION = "Place";
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int index) {
-            switch (index) {
-                case 0:
-                    // University Details Fragment
-                    UniversityDetailsFragment univDetailsFrag = new UniversityDetailsFragment();
-                    Bundle univDetailsBundle = new Bundle();
-                    String customUnivDetailsBean = EazyUtils.getGsonParser().toJson(getUnivDetailsBean());
-                    univDetailsBundle.putString("UNIV_DETAILS_BEAN",customUnivDetailsBean);
-                    univDetailsFrag.setArguments(univDetailsBundle);
-                    return univDetailsFrag;
-
-                case 1:
-                    // University Location Details Fragment
-                    UniversityLocationFragment univLocationFrag = new UniversityLocationFragment();
-                    return univLocationFrag;
-
-            }
-
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return UNIVERSITY_DETAILS;
-                case 1:
-                    return UNIVERSITY_LOCATION;
-            }
-            return null;
-        }
-    }
     /**
      * End of Fragments
      */

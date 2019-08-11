@@ -57,16 +57,14 @@ public class BlogConnectTask extends AsyncTask<String, Void, TextView> {
         Element blogElement = elementIterator.next();
         Elements blogTitleElements = blogElement.select("h2");
         if(!blogTitleElements.isEmpty()) {
-            //setHeadingSpan(spanStr);
-            String headingStr = "<b>"+blogTitleElements.first().text()+"</b>";
-            txtView.append(Html.fromHtml(headingStr)+ "\n");
-            //clearHeadingSpan(spanStr);
-            Log.d("title", blogTitleElements.first().text());
+            String headingTitle = blogTitleElements.first().text().trim();
+            txtView.append("\n");
+            txtView.append(Html.fromHtml("<b><br><font color=#2bb1ff>"+ headingTitle +"</font><br></b>"));
+            txtView.append("\n");
 
             Elements blogTitleContentElements = blogElement.getElementsByClass("paragraph");
             if(!blogTitleContentElements.isEmpty()){
-                txtView.append(blogTitleContentElements.first().text() + "\n");
-                Log.d("content", blogTitleContentElements.first().text());
+                txtView.append(blogTitleContentElements.first().text().trim() + "\n");
             }
         }
         txtView.append("\n\n");

@@ -3,21 +3,18 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_univ_details"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal">
+    android:layout_height="match_parent">
 
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
         <TextView
-            android:id="@+id/univDetailsLabel"
+            android:id="@+id/univDetailsTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="University Details"
-            android:gravity="center_horizontal"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="30sp"/>
+            android:textSize="20sp"/>
     </TableRow>
     <TableRow
         android:layout_width="match_parent"
@@ -28,7 +25,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Univ Name"
-            android:gravity="center_horizontal"
             android:textSize="20sp"/>
     </TableRow>
 
@@ -36,14 +32,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <TextView
+        <EditText
             android:id="@+id/univUrl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textEmailAddress"
             android:text="example@example.com"
-            android:gravity="center_horizontal"
             android:textSize="20sp"/>
     </TableRow>
 
@@ -51,14 +46,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <TextView
+        <EditText
             android:id="@+id/univPhNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="phone"
             android:text="9198895574"
-            android:gravity="center_horizontal"
             android:textSize="20sp"/>
     </TableRow>
 
@@ -70,8 +64,8 @@
             android:id="@+id/univLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:text="Location"
             android:textSize="20sp"/>
     </TableRow>
 </TableLayout>
+
