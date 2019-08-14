@@ -39,16 +39,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
-    private static final String SEARCH_PATTERN_TRIM_1 = "Billionaire\\sSecrets";
-    private static final String SEARCH_PATTERN_TRIM_2 = "At\\sa\\sGlance";
-    private static final String SEARCH_PATTERN_HYPERLINK = "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
-            + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
-            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)";
-    private static final String SEARCH_PATTERN_PH_NUMBER = "\\d{3}\\s\\d{7}";
-
     private BufferedReader bReader;
-
     private UniversityLocationBean uLocationBean;
+    private UniversityDetailsBean uDetailsBean;
     private Document parsedSearchHtml;
     private CustomSearch cSearchMain;
     private String searchData;
@@ -73,7 +66,6 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
         String status = getUniversityDetailsFromSearch(uDetailsBean,queries);
 
-
         return status;
     }
 
@@ -92,7 +84,6 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         JSONArray items;
         String link = "";
         Map<String,String> feesMap = new LinkedHashMap<String,String>();
-        String sResponse, lResponse, sName=getSearchQuery(), sLocation="";
         String searchData = null;
 
         try {
@@ -220,20 +211,17 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private String getGoogleAPIUrl(String query, String apiName)throws UnsupportedEncodingException {
 
         String url = "";
-
         if(apiName.equals("SearchAPI")) {
             String encodedQuery = URLEncoder.encode(query, "utf-8");
             url=new String("https://www.googleapis.com/customsearch/v1?" +
                     "key=" + API_KEY + "&cx=" + SEARCH_ENGINE_ID + "&q=" + encodedQuery +
                     "&exactTerms=" + encodedQuery);
         }
-
         if(apiName.equals("PlacesAPI")){
             String encodedQuery = URLEncoder.encode(query, "utf-8");
             url = new String("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?"+
                                      "input="+encodedQuery+"&inputtype=textquery&key="+API_KEY);
         }
-
         if(apiName.equals("PlacesDetailsAPI")){
 
             url = new String("https://maps.googleapis.com/maps/api/place/details/json?"+
@@ -342,21 +330,15 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         this.uDetailsBean = uDetailsBean;
     }
 
-    private UniversityDetailsBean uDetailsBean;
-
     public UniversityLocationBean getuLocationBean() {
         return uLocationBean;
     }
-
     public void setuLocationBean(UniversityLocationBean uLocationBean) {
         this.uLocationBean = uLocationBean;
     }
-
-
     protected void onProgressUpdate() {
         //called when the background task makes any progress
     }
-
     protected void onPreExecute() {
         //called before doInBackground() is started
         setSearchData(EMPTY_STRING);
