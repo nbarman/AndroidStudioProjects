@@ -300,21 +300,18 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             urlConnection.setRequestProperty("Accept", "application/json");
             bReader = new BufferedReader(new InputStreamReader(
                     (urlConnection.getInputStream())));
-
-
             while ((lineText = bReader.readLine()) != null) {
                 sResponse.append(lineText);
             }
         }catch(IOException exception){
-
+            Log.d("getDataFromUrl : ", "FATAL! IOEXCEPTION detected : "+ exception.getMessage());
+            cSearchMain.onCallBack("10");
         }
         if(sResponse==null || sResponse.length()==0){
 
             sResponse.append("Empty Response from Search");
         }
-
         JSONObject jsonOutput = new JSONObject(sResponse.toString().trim());
-
         return jsonOutput;
     }
 
