@@ -105,6 +105,9 @@ public class CustomSearch extends AppCompatActivity{
                     //Calls the Custom Search Engine for the search async
                     cSearchEngine = new CustomSearchEngine(CustomSearch.this);
                    String result =  cSearchEngine.execute(queries).get();
+                   if(result.equalsIgnoreCase("fail")){
+                       onCallBack("10"); // the background task has failed for some reason. We invalidate the search
+                   }
                 } catch(InterruptedException | ExecutionException exception){
                     Log.e("FATAL!", exception.getMessage());
 

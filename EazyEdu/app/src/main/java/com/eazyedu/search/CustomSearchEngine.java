@@ -3,6 +3,7 @@ package com.eazyedu.search;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import org.jsoup.nodes.Element;
 
 import com.eazyedu.beans.UniversityDetailsBean;
 import com.eazyedu.beans.UniversityLocationBean;
@@ -12,12 +13,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +38,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
+    private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
     private static final String SEARCH_PATTERN_TRIM_1 = "Billionaire\\sSecrets";
     private static final String SEARCH_PATTERN_TRIM_2 = "At\\sa\\sGlance";
     private static final String SEARCH_PATTERN_HYPERLINK = "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
@@ -41,12 +49,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private BufferedReader bReader;
 
     private UniversityLocationBean uLocationBean;
-    private Document htmlDoc;
+    private Document parsedSearchHtml;
     private CustomSearch cSearchMain;
     private String searchData;
-    private int strTrimIndex;
-    private int startStrTrimIndex;
-    private int endStrTrimIndex;
     private int searchOccuranceIndices[];
 
     private final String EMPTY_STRING = "";
@@ -72,72 +77,126 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         return status;
     }
 
+    /**
+     * Gets all the University Details Information
+     * @param uDetailsBean
+     * @param queries
+     * @return
+     */
     private String getUniversityDetailsFromSearch(UniversityDetailsBean uDetailsBean, String... queries){
 
 
         setSearchQuery(queries[0]);
+        URL url;
+        JSONObject jsonOutput;
+        JSONArray items;
         String link = "";
+        Map<String,String> feesMap = new LinkedHashMap<String,String>();
         String sResponse, lResponse, sName=getSearchQuery(), sLocation="";
         String searchData = null;
 
         try {
-            String encodedQuery = URLEncoder.encode(getSearchQuery(), "utf-8");
-            URL url = new URL("https://www.googleapis.com/customsearch/v1?"+
-                    "key="+ API_KEY +"&cx="+SEARCH_ENGINE_ID+"&q="+ encodedQuery +
-                    "&exactTerms="+encodedQuery);
 
-            sResponse = getDataFromUrl(url);
-
-            if(sResponse==null || sResponse.isEmpty()){
-
-                return "Empty Response from Search";
-            }
-
-            JSONObject jsonOutput = new JSONObject(sResponse);
-            JSONArray items = jsonOutput.getJSONArray("items");
-
+            url = new URL(getGoogleAPIUrl(getSearchQuery(),"SearchAPI"));
+            /* Parsing JSON */
+            jsonOutput = getDataFromUrl(url);
+            items = jsonOutput.getJSONArray("items");
             jsonOutput = new JSONObject(items.getString(0));
 
+            /**
+             * Pattern matching and HTML parsing snippet
+             */
             link = jsonOutput.getString("link");
-            htmlDoc = Jsoup.connect(link).get();
-            Log.d("Lognam2" , "University name is:: "+jsonOutput.getString("title"));
-            uDetailsBean.setUnivName(jsonOutput.getString("title"));
-            searchData = htmlDoc.text(); //Use Instance String variable to manipulate
-
-            //searchOccuranceIndices contains two values [matchIndexBegin.....matchIndexEnd]
-            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_TRIM_1,CustomSearchEngine.SEARCH_PATTERN_TRIM_2, "SEARCH_PATTERN_TRIM");
-            searchData = searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
-            Log.d("searchData: ", searchData);
-            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_HYPERLINK,null,"SEARCH_LINK");
-            String hLink = searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
-            uDetailsBean.setUnivURL(hLink.trim());
-            searchData = searchData.replaceAll("[\\-\\+\\.\\^:,]","");
-            searchData = searchData.replaceAll("\\p{P}","");
-            searchOccuranceIndices = searchPatternMatch(searchData,CustomSearchEngine.SEARCH_PATTERN_PH_NUMBER,null, "SEARCH_PHONE_NO");
-            String phNumber =  searchData.substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
-            phNumber = phNumber.replaceAll("\\s","");
-
-            if(phNumber.length()<=10){
-                //format the phone number
-                StringBuilder formattedPhNumber = new StringBuilder();
-                for(int i = 0;i<phNumber.length();i++){
-
-                    if(i%3 ==0 && i>0 && i<= 6){
-                    formattedPhNumber.append('-');
+            parsedSearchHtml = Jsoup.connect(link).get();
+            uDetailsBean.setUnivName(jsonOutput.getString("title").split("-")[0]);
+            Elements allSearchNodes = parsedSearchHtml.getElementsByClass("hero-content-main");
+            for(Element searchNode : allSearchNodes){
+                Elements addressPhElements = searchNode.select("p");
+                for(Element addressPhElement : addressPhElements){
+                    String[] addressAndPhoneNumber = addressPhElement.text().trim().split("\\|");
+                    if(addressAndPhoneNumber!=null && addressAndPhoneNumber.length>1){
+                        uDetailsBean.setUnivLocation(addressAndPhoneNumber[0]);
+                        uDetailsBean.setPhoneNumber(addressAndPhoneNumber[1]);
+                    } else{
+                        uDetailsBean.setUnivLocation(addressAndPhoneNumber[0]);
+                        uDetailsBean.setPhoneNumber("Not Available");
                     }
-                    formattedPhNumber.append(phNumber.charAt(i));
-
                 }
-                Log.d("phNumber", formattedPhNumber.toString());
-                uDetailsBean.setPhoneNumber(formattedPhNumber.toString());
 
-            } else{
-                uDetailsBean.setPhoneNumber("000");
+                Elements rankingElements = searchNode.getElementsByClass("hero-ranking-data-rank");
+                for(Element rankingElement : rankingElements){
+
+                    searchOccuranceIndices = searchPatternMatch(rankingElement.text().trim(),SEARCH_RANKING,null,"SEARCH_RANKING");
+                    Log.d("Ranking", rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+                    String ranking = rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
+                    if(!ranking.isEmpty()){
+                        uDetailsBean.setUnivRanking(ranking);
+                    }
+                }
             }
-            String location = searchData.substring(0,searchOccuranceIndices[0]);
-            uDetailsBean.setUnivLocation(location.trim());
-            setuDetailsBean(uDetailsBean);
-            //Log.d("phNumber", phNumber);
+            /**
+             * University fees extraction
+             */
+            Elements feeStructureNodes = parsedSearchHtml.getElementsByClass("hero-stats-widget-stats");
+            /**
+             * We need only the first section
+             */
+            Element feeStructureSection = feeStructureNodes.first();
+            Elements feeList = feeStructureSection.select("ul");
+            Elements feeListItems = feeList.select("li");
+            Element inStateFees = feeListItems.get(0);
+            searchOccuranceIndices = searchPatternMatch(inStateFees.html().trim(),"\\$([^\\$]*)\\$",null,"FIND_FEES");
+            Log.d("in state fees", inStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+
+            Element outStateFees = feeListItems.get(1);
+            for(int i=0; i<feeListItems.size();i++){
+
+                Element feeListItem = feeListItems.get(i);
+                Log.d("Fee Item", feeListItem.text());
+            }
+
+            Log.d("section", feeStructureNodes.text());
+
+
+            /**
+             * Google API calls code snippet
+             */
+            url = new URL(getGoogleAPIUrl(getSearchQuery(),"PlacesAPI"));
+            /* Parsing JSON */
+            jsonOutput = getDataFromUrl(url);
+            items = jsonOutput.getJSONArray("candidates");
+            jsonOutput = items.getJSONObject(0);
+            String placeID = jsonOutput.getString("place_id").trim();
+
+            url = new URL(getGoogleAPIUrl(placeID,"PlacesDetailsAPI"));
+            boolean isAPIError = false;
+            String apiError= null;
+            do {
+                jsonOutput = getDataFromUrl(url);
+                if(jsonOutput.has("error_message")) {
+                    apiError = jsonOutput.getString("error_message");
+                }
+                if(apiError!=null && apiError.contains("You have exceeded your daily request quota for this API")){
+                    isAPIError = true;
+                } else{
+                    isAPIError = false;
+                }
+                if(isAPIError) {// Google API Error. Retry after 3 secs
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }while(isAPIError);
+
+            if(jsonOutput.has("result")) {
+                jsonOutput = jsonOutput.getJSONObject("result");
+                if(jsonOutput.has("website")) {
+                    uDetailsBean.setUnivURL(jsonOutput.getString("website").trim());
+                }
+            }
+
 
         } catch (JSONException exception){
             int d = Log.d("doInBackground: ", "FATAL! JSONEXCEPTION detected " + exception);
@@ -151,56 +210,87 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
     }
 
+    /**
+     *  External Calls to Google APIs for Details
+     * @param query
+     * @param apiName
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    private String getGoogleAPIUrl(String query, String apiName)throws UnsupportedEncodingException {
 
+        String url = "";
+
+        if(apiName.equals("SearchAPI")) {
+            String encodedQuery = URLEncoder.encode(query, "utf-8");
+            url=new String("https://www.googleapis.com/customsearch/v1?" +
+                    "key=" + API_KEY + "&cx=" + SEARCH_ENGINE_ID + "&q=" + encodedQuery +
+                    "&exactTerms=" + encodedQuery);
+        }
+
+        if(apiName.equals("PlacesAPI")){
+            String encodedQuery = URLEncoder.encode(query, "utf-8");
+            url = new String("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?"+
+                                     "input="+encodedQuery+"&inputtype=textquery&key="+API_KEY);
+        }
+
+        if(apiName.equals("PlacesDetailsAPI")){
+
+            url = new String("https://maps.googleapis.com/maps/api/place/details/json?"+
+                             "placeid="+query+"&key="+API_KEY);
+        }
+        return url;
+    }
+
+    /**
+     * A very important method which uses Java RegEx to extract details
+     * @param searchStr
+     * @param searchPatternStrt
+     * @param searchPatternEnd
+     * @param pSearchCode
+     * @return
+     */
 
     private int[] searchPatternMatch(String searchStr, String searchPatternStrt, String searchPatternEnd, String pSearchCode){
 
         int sOccIndices[] = {-1,-1};
         Pattern searchPattern = null;
         Matcher matchSearchPattern= null;
-        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("SEARCH_PATTERN_TRIM")) {
-            searchPattern = Pattern.compile(searchPatternStrt,
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-            matchSearchPattern= searchPattern.matcher(searchStr);
-            //Check the occurance of the searchPattern
-            if (matchSearchPattern.find()) {
-
-                sOccIndices[0] = matchSearchPattern.end();
-            }
-
-            searchPattern = Pattern.compile(searchPatternEnd,
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-
-            matchSearchPattern = searchPattern.matcher(searchStr);
-            //Check the occurance of the searchPattern
-            if (matchSearchPattern.find()) {
-
-                sOccIndices[1] = matchSearchPattern.start();
-            }
-        } else if(pSearchCode!=null && (pSearchCode.equalsIgnoreCase("SEARCH_PHONE_NO")
-                    || pSearchCode.equalsIgnoreCase("SEARCH_LINK"))){
+        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("SEARCH_RANKING")){
 
             searchPattern = Pattern.compile(searchPatternStrt,
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
             matchSearchPattern= searchPattern.matcher(searchStr);
-            //Check the occurance of the searchPattern
             if (matchSearchPattern.find()) {
+                sOccIndices[0] = matchSearchPattern.start()+1; //Ignore the hash(#)
+                sOccIndices[1] = matchSearchPattern.end();
+            }
+        }
 
+        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("FIND_FEES")){
+
+            searchPattern = Pattern.compile(searchPatternStrt,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            matchSearchPattern= searchPattern.matcher(searchStr);
+            if (matchSearchPattern.find()) {
                 sOccIndices[0] = matchSearchPattern.start();
                 sOccIndices[1] = matchSearchPattern.end();
             }
         }
 
-
-
-        Log.d("Start: End", sOccIndices[0]+"::" + sOccIndices[1]);
         if(matchSearchPattern!=null) {
             matchSearchPattern.reset();
         }
         return sOccIndices;
     }
 
-    private String getDataFromUrl(URL url){
+    /**
+     *  Returns the response of the HTTP call in JSON format
+     * @param url
+     * @return
+     * @throws JSONException
+     */
+    private JSONObject getDataFromUrl(URL url) throws JSONException{
         String lineText;
         StringBuilder sResponse = new StringBuilder();
 
@@ -218,18 +308,14 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         }catch(IOException exception){
 
         }
+        if(sResponse==null || sResponse.length()==0){
 
-        return sResponse.toString().trim();
-    }
+            sResponse.append("Empty Response from Search");
+        }
 
+        JSONObject jsonOutput = new JSONObject(sResponse.toString().trim());
 
-
-    public int getStrTrimIndex() {
-        return strTrimIndex+1;
-    }
-
-    public void setStrTrimIndex(int strTrimIndex) {
-        this.strTrimIndex = strTrimIndex;
+        return jsonOutput;
     }
 
     public String getSearchQuery() {
