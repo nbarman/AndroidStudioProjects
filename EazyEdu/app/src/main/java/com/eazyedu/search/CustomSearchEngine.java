@@ -39,6 +39,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
+    private static final String SEARCH_UNIV_FEES = "\\$\\d{0,3}(,\\d{0,5})";
     private BufferedReader bReader;
     private UniversityLocationBean uLocationBean;
     private UniversityDetailsBean uDetailsBean;
@@ -83,7 +84,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         JSONObject jsonOutput;
         JSONArray items;
         String link = "";
-        Map<String,String> feesMap = new LinkedHashMap<String,String>();
+        Map<String,String> feeMap = new LinkedHashMap<String,String>();
         String searchData = null;
 
         try {
@@ -117,7 +118,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 Elements rankingElements = searchNode.getElementsByClass("hero-ranking-data-rank");
                 for(Element rankingElement : rankingElements){
 
-                    searchOccuranceIndices = searchPatternMatch(rankingElement.text().trim(),SEARCH_RANKING,null,"SEARCH_RANKING");
+                    searchOccuranceIndices = searchPatternMatch(rankingElement.text().trim(),CustomSearchEngine.SEARCH_RANKING,null,"SEARCH_RANKING");
                     Log.d("Ranking", rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
                     String ranking = rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
                     if(!ranking.isEmpty()){
@@ -135,52 +136,23 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             Element feeStructureSection = feeStructureNodes.first();
             Elements feeList = feeStructureSection.select("ul");
             Elements feeListItems = feeList.select("li");
+            /** In state fees extraction **/
             Element inStateFees = feeListItems.get(0);
-            searchOccuranceIndices = searchPatternMatch(inStateFees.html().trim(),"\\$([^\\$]*)\\$",null,"FIND_FEES");
+            searchOccuranceIndices = searchPatternMatch(inStateFees.html().trim(),CustomSearchEngine.SEARCH_UNIV_FEES,null,"FIND_FEES");
             Log.d("in state fees", inStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+            feeMap.put("InState",inStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
 
+            /** Out state fees extraction **/
             Element outStateFees = feeListItems.get(1);
-            for(int i=0; i<feeListItems.size();i++){
+            searchOccuranceIndices = searchPatternMatch(outStateFees.html().trim(),CustomSearchEngine.SEARCH_UNIV_FEES,null,"FIND_FEES");
+            Log.d("out state fees", outStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+            feeMap.put("OutState",outStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
 
-                Element feeListItem = feeListItems.get(i);
-                Log.d("Fee Item", feeListItem.text());
+            if(!feeMap.isEmpty()){
+                uDetailsBean.setUnivFees(feeMap);
             }
-
-            Log.d("section", feeStructureNodes.text());
-
-
-            /**
-             * Google API calls code snippet
-             */
-            url = new URL(getGoogleAPIUrl(getSearchQuery(),"PlacesAPI"));
-            /* Parsing JSON */
-            jsonOutput = getDataFromUrl(url);
-            items = jsonOutput.getJSONArray("candidates");
-            jsonOutput = items.getJSONObject(0);
-            String placeID = jsonOutput.getString("place_id").trim();
-
-            url = new URL(getGoogleAPIUrl(placeID,"PlacesDetailsAPI"));
-            boolean isAPIError = false;
-            String apiError= null;
-            do {
-                jsonOutput = getDataFromUrl(url);
-                if(jsonOutput.has("error_message")) {
-                    apiError = jsonOutput.getString("error_message");
-                }
-                if(apiError!=null && apiError.contains("You have exceeded your daily request quota for this API")){
-                    isAPIError = true;
-                } else{
-                    isAPIError = false;
-                }
-                if(isAPIError) {// Google API Error. Retry after 3 secs
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }while(isAPIError);
-
+            /* Google API calls */
+            jsonOutput = getResponseFrmGooglePlacesAPI(jsonOutput,items);
             if(jsonOutput.has("result")) {
                 jsonOutput = jsonOutput.getJSONObject("result");
                 if(jsonOutput.has("website")) {
@@ -189,20 +161,61 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             }
 
 
-        } catch (JSONException exception){
-            int d = Log.d("doInBackground: ", "FATAL! JSONEXCEPTION detected " + exception);
-            return "fail";
-        } catch( Exception exception){
-            int d = Log.d("doInBackground: ", "FATAL! Exception detected "+ exception);
+        } catch ( IOException | JSONException exception){
+            Log.d("doInBackground: ", "FATAL! Exception detected " + exception.getMessage());
             return "fail";
         }
-
         return "success";
 
     }
 
     /**
-     *  External Calls to Google APIs for Details
+     * Calls the Google Places API and returns a detailed JSON
+     * @param jsonOutput
+     * @param items
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws MalformedURLException
+     * @throws JSONException
+     */
+    private JSONObject getResponseFrmGooglePlacesAPI(JSONObject jsonOutput, JSONArray items) throws UnsupportedEncodingException, MalformedURLException, JSONException{
+
+        /**
+         * Google API calls code snippet
+         */
+        URL url = new URL(getGoogleAPIUrl(getSearchQuery(),"PlacesAPI"));
+        /* Parsing JSON */
+        jsonOutput = getDataFromUrl(url);
+        items = jsonOutput.getJSONArray("candidates");
+        jsonOutput = items.getJSONObject(0);
+        String placeID = jsonOutput.getString("place_id").trim();
+
+        url = new URL(getGoogleAPIUrl(placeID,"PlacesDetailsAPI"));
+        boolean isAPIError = false;
+        String apiError= null;
+        do {
+            jsonOutput = getDataFromUrl(url);
+            if(jsonOutput.has("error_message")) {
+                apiError = jsonOutput.getString("error_message");
+            }
+            if(apiError!=null && apiError.contains("You have exceeded your daily request quota for this API")){
+                isAPIError = true;
+            } else{
+                isAPIError = false;
+            }
+            if(isAPIError) {// Google API Error. Retry after 3 secs
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }while(isAPIError);
+        return jsonOutput;
+    }
+
+    /**
+     *  URLS for External Calls to Google APIs for Details
      * @param query
      * @param apiName
      * @return
