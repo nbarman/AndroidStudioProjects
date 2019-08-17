@@ -100,7 +100,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
              */
             link = jsonOutput.getString("link");
             parsedSearchHtml = Jsoup.connect(link).get();
-            uDetailsBean.setUnivName(jsonOutput.getString("title").split("-")[0]);
+            //uDetailsBean.setUnivName(jsonOutput.getString("title").split("-")[0]);
             Elements allSearchNodes = parsedSearchHtml.getElementsByClass("hero-content-main");
             for(Element searchNode : allSearchNodes){
                 Elements addressPhElements = searchNode.select("p");
@@ -160,6 +160,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 }
                 if(jsonOutput.has("rating")){
                     uDetailsBean.setUnivRating(jsonOutput.getString("rating").trim());
+                }
+                if(jsonOutput.has("name")){
+                    uDetailsBean.setUnivName(jsonOutput.getString("name"));
                 }
             }
 
