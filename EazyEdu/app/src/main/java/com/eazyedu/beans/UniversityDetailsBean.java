@@ -17,6 +17,10 @@ public class UniversityDetailsBean implements Serializable{
     private String phoneNumber;
     private String univURL;
 
+
+
+    private String univRating;
+
     public UniversityDetailsBean(){};
 
     public String getPhoneNumber() {
@@ -65,6 +69,14 @@ public class UniversityDetailsBean implements Serializable{
 
     public void setUnivFees(Map univFees) {
         this.univFees = univFees;
+    }
+
+    public String getUnivRating() {
+        return univRating;
+    }
+
+    public void setUnivRating(String univRating) {
+        this.univRating = univRating;
     }
 
 

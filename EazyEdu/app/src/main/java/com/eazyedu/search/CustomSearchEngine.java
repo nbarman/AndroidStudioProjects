@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
     private String searchQuery;
-    private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk1";
+    private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
@@ -157,6 +157,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 jsonOutput = jsonOutput.getJSONObject("result");
                 if(jsonOutput.has("website")) {
                     uDetailsBean.setUnivURL(jsonOutput.getString("website").trim());
+                }
+                if(jsonOutput.has("rating")){
+                    uDetailsBean.setUnivRating(jsonOutput.getString("rating").trim());
                 }
             }
 

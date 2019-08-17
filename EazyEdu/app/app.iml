@@ -145,6 +145,7 @@
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/nambarma/Downloads/AndroidStudioProjects-clone/EazyEdu/app/libs/javax.mail-1.5.5.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-fragment-27.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.http-client:google-http-client:1.23.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: pl.pawelkleczkowski.customgauge:CustomGauge-1.0.4" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:design-27.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7-27.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.2@jar" level="project" />
