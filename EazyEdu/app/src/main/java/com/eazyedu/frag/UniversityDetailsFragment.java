@@ -139,7 +139,7 @@ public class UniversityDetailsFragment extends Fragment {
         } else if(errorCode.equals("03")){
             univDetailsLabel.setText(errorCode + " : Some details could not retrieved for the requested University.");
         } else if(errorCode.equals("10")){
-            univDetailsLabel.setText(errorCode + " : Search Invalid");
+            univDetailsLabel.setText(errorCode + " : Search Not Available");
         }
 
         return univDetailsView;

@@ -1,28 +1,25 @@
 package com.eazyedu.beans;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by namitmohanbarman on 2/22/18.
  */
 
 public class UniversityLocationBean {
 
-    private String locName;
+   private String locCity;
+
+   private String locState;
+
+    private String locFullAddr;
+
+    private List<Map<String, String>> areaLodging;
+
+    private List<Map<String, String>> areaCuisine;
 
     private String locWeather;
-
-    private String locZipCode;
-
-    private String locPopulation;
-
-    private String locSafeRating;
-
-    public String getLocName() {
-        return locName;
-    }
-
-    public void setLocName(String locName) {
-        this.locName = locName;
-    }
 
     public String getLocWeather() {
         return locWeather;
@@ -32,27 +29,44 @@ public class UniversityLocationBean {
         this.locWeather = locWeather;
     }
 
-    public String getLocZipCode() {
-        return locZipCode;
+    public String getLocCity() {
+        return locCity;
     }
 
-    public void setLocZipCode(String locZipCode) {
-        this.locZipCode = locZipCode;
+    public void setLocCity(String locCity) {
+        this.locCity = locCity;
     }
 
-    public String getLocPopulation() {
-        return locPopulation;
+    public String getLocState() {
+        return locState;
     }
 
-    public void setLocPopulation(String locPopulation) {
-        this.locPopulation = locPopulation;
+    public void setLocState(String locState) {
+        this.locState = locState;
     }
 
-    public String getLocSafeRating() {
-        return locSafeRating;
+    public String getLocFullAddr() {
+        return locFullAddr;
     }
 
-    public void setLocSafeRating(String locSafeRating) {
-        this.locSafeRating = locSafeRating;
+    public void setLocFullAddr(String locFullAddr) {
+        this.locFullAddr = locFullAddr;
     }
+
+    public List<Map<String, String>> getAreaLodging() {
+        return areaLodging;
+    }
+
+    public void setAreaLodging(List<Map<String, String>> areaLodging) {
+        this.areaLodging = areaLodging;
+    }
+
+    public List<Map<String, String>> getAreaCuisine() {
+        return areaCuisine;
+    }
+
+    public void setAreaCuisine(List<Map<String, String>> areaCuisine) {
+        this.areaCuisine = areaCuisine;
+    }
+
 }

@@ -45,7 +45,8 @@ public class BlogConnectTask extends AsyncTask<String, Void, TextView> {
             viewBlogDocument = Jsoup.connect(blogWebURL).get();
         } catch (IOException e) {
             int d = Log.d("viewBlogPane: ", "FATAL! IOEXCEPTION detected " + e);
-            //return "fail";
+            txtView.setText("Cannot connect to Source");
+            return txtView;
         }
 
 

@@ -10,7 +10,10 @@ import com.eazyedu.beans.UniversityLocationBean;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,16 +25,17 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by namitmohanbarman on 2/20/18.
  */
 
-public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
+public class CustomSearchEngineBckUp extends AsyncTask<String, Void, String>{
 
     private String searchQuery;
-    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
-    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NX2VgwEwFwdsS5ddLBf6NnnzqtL";
+    private final String API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
@@ -39,14 +43,13 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private BufferedReader bReader;
     private UniversityLocationBean uLocationBean;
     private UniversityDetailsBean uDetailsBean;
-    private String mainUivPostalCode;
     private Document parsedSearchHtml;
     private CustomSearch cSearchMain;
     private String searchData;
     private int searchOccuranceIndices[];
 
     private final String EMPTY_STRING = "";
-    public CustomSearchEngine(CustomSearch cSearchMain){
+    public CustomSearchEngineBckUp(CustomSearch cSearchMain){
 
         uDetailsBean = new UniversityDetailsBean();
         uLocationBean = new UniversityLocationBean();
@@ -82,66 +85,80 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         setSearchQuery(queries[0]);
         URL url;
         JSONObject jsonOutput;
-        JSONObject jCmpOutput;
-        JSONArray jArrayItems;
+        JSONArray items;
         String link = "";
         Map<String,String> feeMap = new LinkedHashMap<String,String>();
         String searchData = null;
         try {
-            url = new URL(getExternalAPIUrl(getSearchQuery(),"SearchAPI"));
+            url = new URL(getGoogleAPIUrl(getSearchQuery(),"SearchAPI"));
             /* Parsing JSON */
             jsonOutput = getDataFromUrl(url);
             if(jsonOutput.has("items")) {
-                jArrayItems = jsonOutput.getJSONArray("items");
-                jsonOutput = new JSONObject(jArrayItems.getString(0));
-                jCmpOutput = new JSONObject(jArrayItems.getString(1));
-                
-                /**
-                 * Retrieving metatags for Data Set 1
-                 */
-                JSONObject pMapObj = jsonOutput.getJSONObject("pagemap");
-                JSONArray metaTagsArry = pMapObj.getJSONArray("metatags");
-
-                JSONObject metaTags = metaTagsArry.getJSONObject(0);
-
-                String schName = metaTags.getString("data-school-name");
-                String schLocStr = metaTags.getString("data-school-location");
-
-
-                /**
-                 * Retrieving metatags for Data Set 2
-                 *
-                 */
-
-                pMapObj = jCmpOutput.getJSONObject("pagemap");
-                metaTagsArry = pMapObj.getJSONArray("metatags");
-                metaTags = metaTagsArry.getJSONObject(0);
-
-                String cmpSchName = metaTags.getString("data-school-name");
-
-                if(schName!=null && cmpSchName!=null && schLocStr!=null){
-
-                    /**
-                     * Check for Ambiguous university Entry
-                     */
-                    if(schName.equalsIgnoreCase(cmpSchName)) {
-
-                        uDetailsBean.setUnivName(schName);
-                        uDetailsBean.setUnivLocation(schLocStr);
-                    } else{
-
-                        return "Exception!! Ambiguous entry";
-                    }
-                } else{
-                    return "fail";
-                }
+                items = jsonOutput.getJSONArray("items");
+                jsonOutput = new JSONObject(items.getString(0));
             } else{
                 //failed to get the details from API calls
                 return "fail";
             }
 
+
+            /**
+             * Pattern matching and HTML parsing snippet
+             */
+            link = jsonOutput.getString("link");
+            parsedSearchHtml = Jsoup.connect(link).get();
+            //uDetailsBean.setUnivName(jsonOutput.getString("title").split("-")[0]);
+            Elements allSearchNodes = parsedSearchHtml.getElementsByClass("hero-content-main");
+            for(Element searchNode : allSearchNodes){
+                Elements addressPhElements = searchNode.select("p");
+                for(Element addressPhElement : addressPhElements){
+                    String[] addressAndPhoneNumber = addressPhElement.text().trim().split("\\|");
+                    if(addressAndPhoneNumber!=null && addressAndPhoneNumber.length>1){
+                        uDetailsBean.setUnivLocation(addressAndPhoneNumber[0]);
+                        uDetailsBean.setPhoneNumber(addressAndPhoneNumber[1]);
+                    } else{
+                        uDetailsBean.setUnivLocation(addressAndPhoneNumber[0]);
+                        uDetailsBean.setPhoneNumber("Not Available");
+                    }
+                }
+                Elements rankingElements = searchNode.getElementsByClass("hero-ranking-data-rank");
+                for(Element rankingElement : rankingElements){
+
+                    searchOccuranceIndices = searchPatternMatch(rankingElement.text().trim(), CustomSearchEngineBckUp.SEARCH_RANKING,null,"SEARCH_RANKING");
+                    Log.d("Ranking", rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+                    String ranking = rankingElement.text().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]);
+                    if(!ranking.isEmpty()){
+                        uDetailsBean.setUnivRanking(ranking);
+                    }
+                }
+            }
+            /**
+             * University fees extraction
+             */
+            Elements feeStructureNodes = parsedSearchHtml.getElementsByClass("hero-stats-widget-stats");
+            /**
+             * We need only the first section
+             */
+            Element feeStructureSection = feeStructureNodes.first();
+            Elements feeList = feeStructureSection.select("ul");
+            Elements feeListItems = feeList.select("li");
+            /** In state fees extraction **/
+            Element inStateFees = feeListItems.get(0);
+            searchOccuranceIndices = searchPatternMatch(inStateFees.html().trim(), CustomSearchEngineBckUp.SEARCH_UNIV_FEES,null,"FIND_FEES");
+            Log.d("in state fees", inStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+            feeMap.put("InState",inStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+
+            /** Out state fees extraction **/
+            Element outStateFees = feeListItems.get(1);
+            searchOccuranceIndices = searchPatternMatch(outStateFees.html().trim(), CustomSearchEngineBckUp.SEARCH_UNIV_FEES,null,"FIND_FEES");
+            Log.d("out state fees", outStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+            feeMap.put("OutState",outStateFees.html().trim().substring(searchOccuranceIndices[0],searchOccuranceIndices[1]));
+
+            if(!feeMap.isEmpty()){
+                uDetailsBean.setUnivFees(feeMap);
+            }
             /* Google API calls */
-            jsonOutput = getResponseFrmGooglePlacesAPI(jsonOutput,jArrayItems);
+            jsonOutput = getResponseFrmGooglePlacesAPI(jsonOutput,items);
             if(jsonOutput.has("result")) {
                 jsonOutput = jsonOutput.getJSONObject("result");
                 if(jsonOutput.has("website")) {
@@ -150,53 +167,14 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 if(jsonOutput.has("rating")){
                     uDetailsBean.setUnivRating(jsonOutput.getString("rating").trim());
                 }
+                if(jsonOutput.has("name")){
+                    uDetailsBean.setUnivName(jsonOutput.getString("name"));
+                }
                 //setting the location bean details
                 if(jsonOutput.has("address_components")){
                     setUnivCityAndStateFrmAPI(jsonOutput);
                 }
             }
-
-            /**
-             * US Department of Education API calls
-             */
-
-            jsonOutput = getResponseFromUSGovtEduDataBankAPI(uDetailsBean.getUnivName());
-            if(jsonOutput!=null && jsonOutput.length()!=0){
-
-                jArrayItems = jsonOutput.getJSONArray("results");
-
-                for(int i =0; i< jArrayItems.length(); i++){
-
-                    JSONObject currentObj = jArrayItems.getJSONObject(i);
-
-                    String currentUnivPCode = currentObj.getString("school.zip").trim();
-
-                    if(currentUnivPCode.contains("-")){
-                        String[] parsedPCode = currentUnivPCode.split("-");
-                        currentUnivPCode = parsedPCode[0].trim();
-                    }
-
-                    if(currentUnivPCode.equalsIgnoreCase(mainUivPostalCode)){
-                        //This is the correct data set from the resultSet
-                        Map<String,String> univFees = new LinkedHashMap<String,String>();
-                        univFees.put("OutState",currentObj.getString("latest.cost.tuition.out_of_state"));
-                        univFees.put("InState",currentObj.getString("latest.cost.tuition.in_state"));
-                        uDetailsBean.setUnivFees(univFees);
-                        break;
-                    }
-                }
-
-
-            } else{
-
-                Log.d("ERROR!! US DATA", " Getting null response");
-            }
-
-            /**
-             * Still have to figure out the Univ Ranking
-             */
-            uDetailsBean.setUnivRanking("NA");
-
         } catch ( IOException | JSONException exception){
             Log.d("doInBackground: ", "FATAL! Exception detected " + exception.getMessage());
             return "fail";
@@ -232,33 +210,12 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             if(addrTypes.getString(0).equalsIgnoreCase("administrative_area_level_1")){
                 uLocationBean.setLocState(addrComponent.getString("long_name"));
             }
-
-            if(addrTypes.getString(0).equalsIgnoreCase("postal_code")){
-                mainUivPostalCode = addrComponent.getString("long_name");
-            }
         }
 
         if(jsonOutput.has("vicinity")){
             uLocationBean.setLocFullAddr(jsonOutput.getString("vicinity"));
         }
     }
-
-    /**
-     *  This method calls a different API which is registered with the US Department of Education to retrieve important Univ Details
-     * @param univNameWithLoc
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws MalformedURLException
-     * @throws JSONException
-     */
-
-    private JSONObject getResponseFromUSGovtEduDataBankAPI(String univNameWithLoc)throws UnsupportedEncodingException, MalformedURLException, JSONException{
-
-        URL url = new URL(getExternalAPIUrl(univNameWithLoc,"USDataBankAPI"));
-        JSONObject jsonOutput = getDataFromUrl(url);
-        return jsonOutput;
-    }
-
 
     /**
      * Calls the Google Places API and returns a detailed JSON
@@ -274,14 +231,14 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         /**
          * Google API calls code snippet
          */
-        URL url = new URL(getExternalAPIUrl(getSearchQuery(),"PlacesAPI"));
+        URL url = new URL(getGoogleAPIUrl(getSearchQuery(),"PlacesAPI"));
         /* Parsing JSON */
         jsonOutput = getDataFromUrl(url);
         items = jsonOutput.getJSONArray("candidates");
         jsonOutput = items.getJSONObject(0);
         String placeID = jsonOutput.getString("place_id").trim();
 
-        url = new URL(getExternalAPIUrl(placeID,"PlacesDetailsAPI"));
+        url = new URL(getGoogleAPIUrl(placeID,"PlacesDetailsAPI"));
         boolean isAPIError = false;
         String apiError= null;
         do {
@@ -306,47 +263,75 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     }
 
     /**
-     *  URLS for External Calls to US Education Databank and Google APIs for Details
+     *  URLS for External Calls to Google APIs for Details
      * @param query
      * @param apiName
      * @return
      * @throws UnsupportedEncodingException
      */
-    private String getExternalAPIUrl(String query, String apiName)throws UnsupportedEncodingException {
+    private String getGoogleAPIUrl(String query, String apiName)throws UnsupportedEncodingException {
 
         String url = "";
         if(apiName.equals("SearchAPI")) {
             String encodedQuery = URLEncoder.encode(query, "utf-8");
             url=new String("https://www.googleapis.com/customsearch/v1?" +
-                    "key=" + GOOGLE_API_KEY + "&cx=" + SEARCH_ENGINE_ID + "&q=" + encodedQuery +
+                    "key=" + API_KEY + "&cx=" + SEARCH_ENGINE_ID + "&q=" + encodedQuery +
                     "&exactTerms=" + encodedQuery);
         }
         if(apiName.equals("PlacesAPI")){
             String encodedQuery = URLEncoder.encode(query, "utf-8");
             url = new String("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?"+
-                                     "input="+encodedQuery+"&inputtype=textquery&key="+ GOOGLE_API_KEY);
+                                     "input="+encodedQuery+"&inputtype=textquery&key="+API_KEY);
         }
         if(apiName.equals("PlacesDetailsAPI")){
 
             url = new String("https://maps.googleapis.com/maps/api/place/details/json?"+
-                             "placeid="+query+"&key="+ GOOGLE_API_KEY);
-        }
-        if(apiName.equals("USDataBankAPI")){
-
-            String encodedQuery = URLEncoder.encode(query, "utf-8");
-            url = new String("https://api.data.gov/ed/collegescorecard/v1/schools?"+
-                    "school.name="+encodedQuery+"&_fields=school.name," +
-                    "school.zip," +
-                    "latest.cost.tuition.out_of_state," +
-                    "latest.cost.tuition.in_state," +
-                    "school.school_url" +
-                    "&api_key="
-                    + US_GOVT_EDU_DB_API_KEY
-                    );
+                             "placeid="+query+"&key="+API_KEY);
         }
         return url;
     }
 
+    /**
+     * A very important method which uses Java RegEx to extract details
+     * @param searchStr
+     * @param searchPatternStrt
+     * @param searchPatternEnd
+     * @param pSearchCode
+     * @return
+     */
+
+    private int[] searchPatternMatch(String searchStr, String searchPatternStrt, String searchPatternEnd, String pSearchCode){
+
+        int sOccIndices[] = {-1,-1};
+        Pattern searchPattern = null;
+        Matcher matchSearchPattern= null;
+        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("SEARCH_RANKING")){
+
+            searchPattern = Pattern.compile(searchPatternStrt,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            matchSearchPattern= searchPattern.matcher(searchStr);
+            if (matchSearchPattern.find()) {
+                sOccIndices[0] = matchSearchPattern.start()+1; //Ignore the hash(#)
+                sOccIndices[1] = matchSearchPattern.end();
+            }
+        }
+
+        if(pSearchCode!=null && pSearchCode.equalsIgnoreCase("FIND_FEES")){
+
+            searchPattern = Pattern.compile(searchPatternStrt,
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            matchSearchPattern= searchPattern.matcher(searchStr);
+            if (matchSearchPattern.find()) {
+                sOccIndices[0] = matchSearchPattern.start();
+                sOccIndices[1] = matchSearchPattern.end();
+            }
+        }
+
+        if(matchSearchPattern!=null) {
+            matchSearchPattern.reset();
+        }
+        return sOccIndices;
+    }
 
     /**
      *  Returns the response of the HTTP call in JSON format

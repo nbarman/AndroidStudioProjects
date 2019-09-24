@@ -129,7 +129,7 @@ public class CustomSearch extends AppCompatActivity{
             mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(),this);
             mViewPager = (ViewPager) findViewById(R.id.viewpager);
 
-
+            setupErrorViewPager(mViewPager);
             tabLayout = (TabLayout) findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
             setupTabIcons();

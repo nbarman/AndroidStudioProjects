@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:id="@+id/blog_banner"
-        android:src="@drawable/blog_banner"
+        android:src="@drawable/eazyedu_blog_icon"
         android:requiresFadingEdge="vertical"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="70dp" />
