@@ -95,7 +95,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 jArrayItems = jsonOutput.getJSONArray("items");
                 jsonOutput = new JSONObject(jArrayItems.getString(0));
                 jCmpOutput = new JSONObject(jArrayItems.getString(1));
-                
+
                 /**
                  * Retrieving metatags for Data Set 1
                  */
@@ -125,8 +125,8 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                      * Check for Ambiguous university Entry
                      */
                     if(schName.equalsIgnoreCase(cmpSchName)) {
-
-                        uDetailsBean.setUnivName(schName);
+                        schName.replaceAll("[-,]", " "); //Removing unwanted characters with whitespace
+                        uDetailsBean.setUnivName(schName.trim());
                         uDetailsBean.setUnivLocation(schLocStr);
                     } else{
 
@@ -149,6 +149,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                 }
                 if(jsonOutput.has("rating")){
                     uDetailsBean.setUnivRating(jsonOutput.getString("rating").trim());
+                }
+                if(jsonOutput.has("formatted_phone_number")){
+                    uDetailsBean.setPhoneNumber(jsonOutput.getString("formatted_phone_number").trim());
                 }
                 //setting the location bean details
                 if(jsonOutput.has("address_components")){
