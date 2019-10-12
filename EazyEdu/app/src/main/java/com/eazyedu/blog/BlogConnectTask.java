@@ -3,11 +3,10 @@ package com.eazyedu.blog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
-import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.widget.TextView;
@@ -40,37 +39,51 @@ public class BlogConnectTask extends AsyncTask<String, Void, TextView> {
     protected TextView doInBackground(String... strings) {
 
         String blogWebURL = Arrays.asList(strings).get(0);
+        SpannableStringBuilder blogContentStrBuilder=new SpannableStringBuilder();
 
         try {
             viewBlogDocument = Jsoup.connect(blogWebURL).get();
         } catch (IOException e) {
             int d = Log.d("viewBlogPane: ", "FATAL! IOEXCEPTION detected " + e);
-            txtView.setText("Cannot connect to Source");
+            blogContentStrBuilder.append("Cannot connect to Source!");
+            setTextInTxtView(blogContentStrBuilder);
             return txtView;
         }
 
 
         Elements allBlogElements = viewBlogDocument.getElementsByClass("blog-post");
         Iterator<Element> elementIterator = allBlogElements.iterator();
-
+        Integer blogContentCounter = new Integer(0);
         while(elementIterator.hasNext()){
 
-        Element blogElement = elementIterator.next();
-        Elements blogTitleElements = blogElement.select("h2");
-        if(!blogTitleElements.isEmpty()) {
-            String headingTitle = blogTitleElements.first().text().trim();
-            txtView.append("\n");
-            txtView.append(Html.fromHtml("<b><br><font color=#2bb1ff>"+ headingTitle +"</font><br></b>"));
-            txtView.append("\n");
+            Element blogElement = elementIterator.next();
+            Elements blogTitleElements = blogElement.select("h2");
+            if(!blogTitleElements.isEmpty()) {
+                blogContentCounter++;
+                String headingTitle = blogTitleElements.first().text().trim();
+                SpannableString headingTxtSpannable = new SpannableString(blogContentCounter+". "+ headingTitle);
+                StyleSpan headingBoldSpan = new StyleSpan(Typeface.BOLD);
+                headingTxtSpannable.setSpan(headingBoldSpan,0,headingTxtSpannable.length(),Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                blogContentStrBuilder.append(headingTxtSpannable);
+                blogContentStrBuilder.append("\n");
 
-            Elements blogTitleContentElements = blogElement.getElementsByClass("paragraph");
-            if(!blogTitleContentElements.isEmpty()){
-                txtView.append(blogTitleContentElements.first().text().trim() + "\n");
+                Elements blogTitleContentElements = blogElement.getElementsByClass("paragraph");
+                if(!blogTitleContentElements.isEmpty()){
+                    String blogContent = blogTitleContentElements.first().text().trim();
+                    SpannableString blogContntSpannable = new SpannableString(blogContent);
+                    blogContentStrBuilder.append(blogContntSpannable);
+                    blogContentStrBuilder.append("\n");
+                    blogContentStrBuilder.append("\n");
+                }
             }
         }
-        txtView.append("\n\n");
-    }
+        setTextInTxtView(blogContentStrBuilder);
         return txtView;
+    }
+
+    private void setTextInTxtView(SpannableStringBuilder builder){
+
+        txtView.setText(builder, TextView.BufferType.SPANNABLE);
     }
 
     private void setHeadingSpan(SpannableStringBuilder spanStr){
