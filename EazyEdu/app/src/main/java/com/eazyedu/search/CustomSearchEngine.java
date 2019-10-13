@@ -10,7 +10,10 @@ import com.eazyedu.beans.UniversityLocationBean;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +28,7 @@ import java.util.Map;
 
 /**
  * Created by namitmohanbarman on 2/20/18.
+ * This architecture is updated to function as a SaaS. Most of the information is now retrieved using Web Services
  */
 
 public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
@@ -40,10 +44,9 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     private UniversityLocationBean uLocationBean;
     private UniversityDetailsBean uDetailsBean;
     private String mainUivPostalCode;
-    private Document parsedSearchHtml;
+    private Document wikiRankDocument;
     private CustomSearch cSearchMain;
     private String searchData;
-    private int searchOccuranceIndices[];
 
     private final String EMPTY_STRING = "";
     public CustomSearchEngine(CustomSearch cSearchMain){
@@ -56,7 +59,6 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
     /**
      * This method connects to the Google Custom Search API (CSE) using the Search Engine ID
      * and the API Key which are generated from the Google Developer Console
-     * @output : JSON
      */
     @Override
     @JavascriptInterface
@@ -188,18 +190,36 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                         break;
                     }
                 }
-
-
             } else{
 
                 Log.d("ERROR!! US DATA", " Getting null response");
             }
 
             /**
-             * Still have to figure out the Univ Ranking
+             * WikiMedia API calls using JSoup
              */
-            uDetailsBean.setUnivRanking("NA");
+            String univNameWithUnderscores = uDetailsBean.getUnivName().replaceAll(" ","_");
+            String wikiRankingURL = getExternalAPIUrl(univNameWithUnderscores,"WikiRanking");
+            wikiRankDocument = Jsoup.connect(wikiRankingURL).get();
+            Elements allWikiElements = wikiRankDocument.getElementsByClass("infobox");
+            for(Element wikiElement : allWikiElements){
+                if(wikiElement.className().trim().equals("infobox")){
+                    Log.d("wiki class ", wikiElement.className().trim());
+                    Elements tableRows = wikiElement.select("tr");
+                    for(int i=0 ; i <= 2; i++){
+                        if(i==2){
+                            Element tableRow = tableRows.get(i);
+                            Elements tableCols = tableRow.select("td");
 
+                            Element tableCol = tableCols.get(0);
+                            if(tableCol!=null && tableCol.hasText()){
+                                Log.d("Ranking retrieved : ", tableCol.text());
+                                uDetailsBean.setUnivRanking(tableCol.text().trim() + "(Courtsey : Forbes)");
+                            }
+                        }
+                    }
+                }
+            }
         } catch ( IOException | JSONException exception){
             Log.d("doInBackground: ", "FATAL! Exception detected " + exception.getMessage());
             return "fail";
@@ -346,6 +366,12 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                     "&api_key="
                     + US_GOVT_EDU_DB_API_KEY
                     );
+        }
+
+        if(apiName.equals("WikiRanking")){
+            url = new String("https://en.wikipedia.org/api/rest_v1/page/mobile-html/"
+                    +query
+                    +"?redirect=false");
         }
         return url;
     }
