@@ -1,15 +1,12 @@
 package com.eazyedu.search;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -26,16 +23,6 @@ import com.eazyedu.beans.UniversityLocationBean;
 import com.eazyedu.frag.UniversityDetailsFragment;
 import com.eazyedu.frag.UniversityLocationFragment;
 import com.eazyedu.utilities.EazyUtils;
-import com.google.api.client.json.Json;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import org.json.JSONObject;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class CustomSearch extends AppCompatActivity{
@@ -56,6 +43,7 @@ public class CustomSearch extends AppCompatActivity{
 
     public CustomSearch(){}
 
+    @SuppressLint("JavascriptInterface")
     @Override
     @JavascriptInterface
     protected void onCreate(Bundle savedInstanceState) {

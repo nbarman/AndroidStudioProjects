@@ -34,8 +34,8 @@ import java.util.Map;
 public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
     private String searchQuery;
-    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVatmpdoGgk0";
-    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NX2VgwEwFwdeSuddLBf6NnnzqtL";
+    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
+    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NX2VgwEwFwdsS5ddLBf6NnnzqtL";
     private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
@@ -90,10 +90,10 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         Map<String,String> feeMap = new LinkedHashMap<String,String>();
         String searchData = null;
         try {
-            url = new URL(getExternalAPIUrl(getSearchQuery(),"SearchAPI"));
+            url = new URL(getExternalAPIUrl(getSearchQuery(), "SearchAPI"));
             /* Parsing JSON */
             jsonOutput = getDataFromUrl(url);
-            if(jsonOutput.has("items")) {
+            if (jsonOutput.has("items")) {
                 jArrayItems = jsonOutput.getJSONArray("items");
                 jsonOutput = new JSONObject(jArrayItems.getString(0));
                 jCmpOutput = new JSONObject(jArrayItems.getString(1));
@@ -121,42 +121,43 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
                 String cmpSchName = metaTags.getString("data-school-name");
 
-                if(schName!=null && cmpSchName!=null && schLocStr!=null){
+                if (schName != null && cmpSchName != null && schLocStr != null) {
 
                     /**
                      * Check for Ambiguous university Entry
                      */
-                    if(schName.equalsIgnoreCase(cmpSchName)) {
-                        schName.replaceAll("[-,]", " "); //Removing unwanted characters with whitespace
-                        uDetailsBean.setUnivName(schName.trim());
+                    if (schName.equalsIgnoreCase(cmpSchName)) {
+                        //String schoolName = schName.replaceAll("[^a-zA-Z0-9 ]", " "); //Removing unwanted characters with whitespace
+                        String schoolName = schName.split("[@&.?$+-]+")[0];
+                        uDetailsBean.setUnivName(schoolName.trim());
                         uDetailsBean.setUnivLocation(schLocStr);
-                    } else{
+                    } else {
 
                         return "Exception!! Ambiguous entry";
                     }
-                } else{
+                } else {
                     return "fail";
                 }
-            } else{
+            } else {
                 //failed to get the details from API calls
                 return "fail";
             }
 
             /* Google API calls */
-            jsonOutput = getResponseFrmGooglePlacesAPI(jsonOutput,jArrayItems);
-            if(jsonOutput.has("result")) {
+            jsonOutput = getResponseFrmGooglePlacesAPI(jsonOutput, jArrayItems);
+            if (jsonOutput.has("result")) {
                 jsonOutput = jsonOutput.getJSONObject("result");
-                if(jsonOutput.has("website")) {
+                if (jsonOutput.has("website")) {
                     uDetailsBean.setUnivURL(jsonOutput.getString("website").trim());
                 }
-                if(jsonOutput.has("rating")){
+                if (jsonOutput.has("rating")) {
                     uDetailsBean.setUnivRating(jsonOutput.getString("rating").trim());
                 }
-                if(jsonOutput.has("formatted_phone_number")){
+                if (jsonOutput.has("formatted_phone_number")) {
                     uDetailsBean.setPhoneNumber(jsonOutput.getString("formatted_phone_number").trim());
                 }
                 //setting the location bean details
-                if(jsonOutput.has("address_components")){
+                if (jsonOutput.has("address_components")) {
                     setUnivCityAndStateFrmAPI(jsonOutput);
                 }
             }
@@ -166,31 +167,31 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
              */
 
             jsonOutput = getResponseFromUSGovtEduDataBankAPI(uDetailsBean.getUnivName());
-            if(jsonOutput!=null && jsonOutput.length()!=0){
+            if (jsonOutput != null && jsonOutput.length() != 0) {
 
                 jArrayItems = jsonOutput.getJSONArray("results");
 
-                for(int i =0; i< jArrayItems.length(); i++){
+                for (int i = 0; i < jArrayItems.length(); i++) {
 
                     JSONObject currentObj = jArrayItems.getJSONObject(i);
 
                     String currentUnivPCode = currentObj.getString("school.zip").trim();
 
-                    if(currentUnivPCode.contains("-")){
+                    if (currentUnivPCode.contains("-")) {
                         String[] parsedPCode = currentUnivPCode.split("-");
                         currentUnivPCode = parsedPCode[0].trim();
                     }
 
-                    if(currentUnivPCode.equalsIgnoreCase(mainUivPostalCode)){
+                    if (currentUnivPCode.equalsIgnoreCase(mainUivPostalCode)) {
                         //This is the correct data set from the resultSet
-                        Map<String,String> univFees = new LinkedHashMap<String,String>();
-                        univFees.put("OutState",currentObj.getString("latest.cost.tuition.out_of_state"));
-                        univFees.put("InState",currentObj.getString("latest.cost.tuition.in_state"));
+                        Map<String, String> univFees = new LinkedHashMap<String, String>();
+                        univFees.put("OutState", currentObj.getString("latest.cost.tuition.out_of_state"));
+                        univFees.put("InState", currentObj.getString("latest.cost.tuition.in_state"));
                         uDetailsBean.setUnivFees(univFees);
                         break;
                     }
                 }
-            } else{
+            } else {
 
                 Log.d("ERROR!! US DATA", " Getting null response");
             }
@@ -198,28 +199,41 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
             /**
              * WikiMedia API calls using JSoup
              */
-            String univNameWithUnderscores = uDetailsBean.getUnivName().replaceAll(" ","_");
-            String wikiRankingURL = getExternalAPIUrl(univNameWithUnderscores,"WikiRanking");
+
+            String univNameWithUnderscores = uDetailsBean.getUnivName().replaceAll(" ", "_");
+            /** Hardcoding some names for now
+             */
+            if(uDetailsBean.getUnivName().equalsIgnoreCase("Georgia Institute of Technology")){
+                univNameWithUnderscores = "Georgia_Tech";
+            }
+            String wikiRankingURL = getExternalAPIUrl(univNameWithUnderscores, "WikiRanking");
             wikiRankDocument = Jsoup.connect(wikiRankingURL).get();
             Elements allWikiElements = wikiRankDocument.getElementsByClass("infobox");
-            for(Element wikiElement : allWikiElements){
-                if(wikiElement.className().trim().equals("infobox")){
+            if (allWikiElements.size() == 0) {
+                uDetailsBean.setUnivRanking("NA");
+            } else{
+            for (Element wikiElement : allWikiElements) {
+                if (wikiElement.className().trim().equals("infobox")) {
                     Log.d("wiki class ", wikiElement.className().trim());
                     Elements tableRows = wikiElement.select("tr");
-                    for(int i=0 ; i <= 2; i++){
-                        if(i==2){
-                            Element tableRow = tableRows.get(i);
+                    for (int i = 0; i <= tableRows.size(); i++) {
+                        Element tableRow = tableRows.get(i);
+                        if (tableRow.hasText() && tableRow.text().contains("Forbes")) {
                             Elements tableCols = tableRow.select("td");
-
                             Element tableCol = tableCols.get(0);
-                            if(tableCol!=null && tableCol.hasText()){
+                            if (tableCol != null && tableCol.hasText()) {
                                 Log.d("Ranking retrieved : ", tableCol.text());
                                 uDetailsBean.setUnivRanking(tableCol.text().trim() + "(Courtsey : Forbes)");
+                            } else {
+                                uDetailsBean.setUnivRanking(("NA"));
                             }
+                            break;
                         }
                     }
+                    break;
                 }
             }
+          }
         } catch ( IOException | JSONException exception){
             Log.d("doInBackground: ", "FATAL! Exception detected " + exception.getMessage());
             return "fail";
