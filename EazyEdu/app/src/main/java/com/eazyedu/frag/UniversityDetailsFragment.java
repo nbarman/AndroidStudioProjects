@@ -93,7 +93,7 @@ public class UniversityDetailsFragment extends Fragment {
                 } else if (univNameStr.isEmpty() || univRankStr.isEmpty() || univURLStr.isEmpty() || univPhNoStr.isEmpty() ||univRankStr.isEmpty()||
                         univRating.isEmpty() || outOfStateFee.isEmpty()) {
                     errorCode = "03";
-                } else {
+                } else {// If no Error then display the results
                     univDetailsLabel.setVisibility(View.INVISIBLE);
                     makeThemVisible(univName,univRank,univWebURL,univPhNumber,websiteIcon,
                             phoneIcon,

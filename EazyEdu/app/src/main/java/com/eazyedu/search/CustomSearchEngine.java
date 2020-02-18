@@ -34,9 +34,9 @@ import java.util.Map;
 public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
     private String searchQuery;
-    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mpdyGgk0";
-    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NX2VgwEtFjdsS5ddLBf6NnnzqtL";
-    private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
+    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzALL4E1u5gbyVa1mudoGgk0";
+    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NMMX2VgwEwFwdsS5ddLBf6NnnzqtL";
+    private final String SEARCH_ENGINE_ID = "01801823625937512447899:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
     private static final String SEARCH_UNIV_FEES = "\\$\\d{0,3}(,\\d{0,5})";
@@ -132,7 +132,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
                         uDetailsBean.setUnivName(schoolName.trim());
                         uDetailsBean.setUnivLocation(schLocStr);
                     } else {
-
+                        Log.d("Error", "Ambiguous entry!");
                         return "Exception!! Ambiguous entry";
                     }
                 } else {
@@ -201,6 +201,10 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
              */
 
             String univNameWithUnderscores = uDetailsBean.getUnivName().replaceAll(" ", "_");
+            /**
+             * Univ Ranking not working for now. Hardcoding NA
+             */
+            uDetailsBean.setUnivRanking(("NA"));
             /** Hardcoding some names for now
              */
             if(uDetailsBean.getUnivName().equalsIgnoreCase("Georgia Institute of Technology")){
