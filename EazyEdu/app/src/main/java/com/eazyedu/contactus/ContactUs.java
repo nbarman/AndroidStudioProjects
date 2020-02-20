@@ -85,7 +85,7 @@ public class ContactUs extends AppCompatActivity{
                      *  The fields are populated. Send the Email message
                      */
 
-                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "NmbMyMan4");
+                    final EazyMail mail = new EazyMail("eazyedu.helpline@gmail.com", "Nmbbeginsws4");
 
                     // Setting the attributes of the mail
 

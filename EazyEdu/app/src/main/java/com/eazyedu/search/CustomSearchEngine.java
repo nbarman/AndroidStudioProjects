@@ -34,9 +34,9 @@ import java.util.Map;
 public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
     private String searchQuery;
-    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzALL4E1u5gbyVa1mudoGgk0";
-    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NMMX2VgwEwFwdsS5ddLBf6NnnzqtL";
-    private final String SEARCH_ENGINE_ID = "01801823625937512447899:ze72lk3hwk4";
+    private final String GOOGLE_API_KEY = "AIzaSyCRJetjVHHNZDzA4E1u5gbyVa1mudoGgk0";
+    private final String US_GOVT_EDU_DB_API_KEY = "Kbf9QcXEPW5r7NX2VgwEwFwdsS5ddLBf6NnnzqtL";
+    private final String SEARCH_ENGINE_ID = "018018236259375124479:ze72lk3hwk4";
     private HttpURLConnection urlConnection;
     private static final String SEARCH_RANKING = "(\\s|\\A)#(\\w+)";
     private static final String SEARCH_UNIV_FEES = "\\$\\d{0,3}(,\\d{0,5})";
@@ -245,15 +245,6 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         return "success";
     }
 
-    private String getLocDetailsFromSearch(){
-
-            //We make some vars for calling the remaining APIs
-            String city = uLocationBean.getLocCity();
-            String state = uLocationBean.getLocState();
-
-            return "success";
-    }
-
     /**
      * Mainly used for instantiating the location bean
      * @param jsonOutput
@@ -282,8 +273,22 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
         if(jsonOutput.has("vicinity")){
             uLocationBean.setLocFullAddr(jsonOutput.getString("vicinity"));
         }
+
+
     }
 
+    /**
+     * Location details
+     * @return
+     */
+    private String getLocDetailsFromSearch(){
+
+        //We make some vars for calling the remaining APIs
+        String city = uLocationBean.getLocCity();
+        String state = uLocationBean.getLocState();
+
+        return "success";
+    }
     /**
      *  This method calls a different API which is registered with the US Department of Education to retrieve important Univ Details
      * @param univNameWithLoc
@@ -479,6 +484,7 @@ public class CustomSearchEngine  extends AsyncTask<String, Void, String>{
 
         if(cSearchMain!= null){
             cSearchMain.setUnivDetailsBean(getuDetailsBean());
+            cSearchMain.setUnivLocationBean(uLocationBean);
             cSearchMain.onCallBack("00"); //Response callback to main activity method
         } else{
             cSearchMain.onCallBack("10");

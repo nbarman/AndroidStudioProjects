@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.eazyedu.R;
 import com.eazyedu.beans.UniversityDetailsBean;
-import com.eazyedu.search.CustomSearch;
 import com.eazyedu.utilities.EazyUtils;
 
 import java.util.Map;

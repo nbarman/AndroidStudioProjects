@@ -180,6 +180,16 @@ public class CustomSearch extends AppCompatActivity{
          * University Location Fragment
          */
         UniversityLocationFragment univLocationFrag = new UniversityLocationFragment();
+        Bundle locDetailsBundle = new Bundle();
+        /**
+         * For initial development
+         */
+        if(univLocationBean.getLocCity()!=null && univLocationBean.getLocState()!=null && univLocationBean.getLocFullAddr()!=null) {
+            locDetailsBundle.putString("LOC_CITY", univLocationBean.getLocCity());
+            locDetailsBundle.putString("LOC_STATE", univLocationBean.getLocState());
+            locDetailsBundle.putString("LOC_FULL_ADDR",  univLocationBean.getLocFullAddr());
+        }
+        univLocationFrag.setArguments(locDetailsBundle);
         adapter.addFragment(univLocationFrag, "Location");
         viewPager.setAdapter(adapter);
     }

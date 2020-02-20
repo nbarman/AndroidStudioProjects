@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/layout_univ_details"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_loc_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/univDetailsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="89dp"
-        android:text="TextView" />
-
-
-    <TextView
-        android:id="@+id/univName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="125dp"
-        android:text="TextView"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textSize="15sp" />
+    <ImageView
+        android:id="@+id/img_website_icon"
+        android:layout_width="67dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="64dp"
+        android:paddingTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/univ_website_icon" />
 
     <!--<View
         android:id="@+id/seperator_view"
@@ -38,126 +29,152 @@
         android:layout_marginTop="54dp"
         android:background="@android:color/holo_orange_dark" />
   -->
-    <ImageView
-        android:id="@+id/img_website_icon"
-        android:layout_width="67dp"
-        android:layout_height="36dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/univName"
-        android:layout_marginTop="70dp"
-        android:paddingTop="10dp"
-        app:srcCompat="@drawable/univ_website_icon" />
-
-    <TextView
-        android:id="@+id/univUrl"
-        android:layout_width="209dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="78dp"
-        android:layout_toEndOf="@id/img_website_icon"
-        android:text="TextView" />
 
     <ImageView
         android:id="@+id/img_ph_icon"
         android:layout_width="67dp"
         android:layout_height="37dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/univName"
-        android:layout_marginTop="125dp"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_website_icon"
         app:srcCompat="@drawable/univ_phone_icon" />
-
-    <TextView
-        android:id="@+id/univPhNumber"
-        android:layout_width="203dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/univUrl"
-        android:layout_alignTop="@+id/img_ph_icon"
-        android:layout_toEndOf="@id/img_ph_icon"
-        android:text="TextView" />
 
     <ImageView
         android:id="@+id/img_rank_icon"
         android:layout_width="44dp"
         android:layout_height="62dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/img_ph_icon"
-        android:layout_marginStart="139dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_ph_icon"
         app:srcCompat="@drawable/univ_rank_icon" />
-
-    <TextView
-        android:id="@+id/univRank"
-        android:layout_width="209dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="182dp"
-        android:layout_toEndOf="@+id/img_website_icon"
-        android:text="TextView" />
 
     <ImageView
         android:id="@+id/img_rating_icon"
         android:layout_width="79dp"
         android:layout_height="48dp"
-        android:layout_alignEnd="@+id/img_rank_icon"
-        android:layout_below="@+id/img_rank_icon"
-        android:layout_marginTop="43dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_rank_icon"
         app:srcCompat="@drawable/univ_rating_icon" />
-
-
-    <pl.pawelkleczkowski.customgauge.CustomGauge
-        android:id="@+id/univ_rating_gauge"
-        android:layout_width="129dp"
-        android:layout_height="99dp"
-        android:layout_below="@+id/img_rank_icon"
-        android:layout_toEndOf="@+id/img_website_icon"
-        app:gaugeEndValue="5"
-        app:gaugePointEndColor="@android:color/holo_orange_dark"
-        app:gaugeStrokeColor="@android:color/background_dark"
-        app:gaugeStartAngle="135"
-        app:gaugeStartValue="1"
-        app:gaugeStrokeCap="ROUND"
-        app:gaugeStrokeWidth="10dp"
-        app:gaugeSweepAngle="270" />
-
-    <TextView
-        android:id="@+id/univ_rating"
-        android:layout_width="34dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="256dp"
-        android:layout_toEndOf="@+id/univ_rating_gauge"
-        android:text="4" />
 
     <ImageView
         android:id="@+id/img_fee_icon"
         android:layout_width="61dp"
         android:layout_height="65dp"
-        android:layout_below="@+id/img_rating_icon"
-        android:layout_alignStart="@+id/img_rating_icon"
-        android:layout_marginBottom="174dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_rating_icon"
         app:srcCompat="@drawable/univ_fee_icon" />
+
+    <TextView
+        android:id="@+id/univDetailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="89dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/univName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/univUrl"
+        android:layout_width="209dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="72dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@id/img_website_icon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/univPhNumber"
+        android:layout_width="203dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="36dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/img_ph_icon"
+        app:layout_constraintTop_toBottomOf="@+id/univUrl" />
+
+    <TextView
+        android:id="@+id/univRank"
+        android:layout_width="209dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="40dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/img_rank_icon"
+        app:layout_constraintTop_toBottomOf="@+id/univPhNumber" />
+
+    <TextView
+        android:id="@+id/univ_rating"
+        android:layout_width="34dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="92dp"
+        android:text="4"
+        app:layout_constraintStart_toEndOf="@+id/univ_rating_gauge"
+        app:layout_constraintTop_toBottomOf="@+id/univRank" />
 
     <TextView
         android:id="@+id/univ_fees"
         android:layout_width="146dp"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/img_fee_icon"
-        android:layout_below="@+id/univ_rating_gauge"
-        android:layout_alignStart="@+id/univ_rating_gauge"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="200dp"
-        android:layout_marginEnd="53dp"
+        android:layout_marginEnd="72dp"
+        android:layout_marginTop="28dp"
         android:paddingLeft="20dp"
-        android:text="TextView" />
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintStart_toEndOf="@+id/img_fee_icon"
+        app:layout_constraintTop_toBottomOf="@+id/univ_rating_gauge" />
 
     <TextView
         android:id="@+id/student_rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/img_rating_icon"
-        android:layout_alignEnd="@+id/img_website_icon"
-        android:layout_marginBottom="-39dp"
-        android:text="Student Rating" />
+        android:layout_marginStart="60dp"
+        android:text="Student Rating"
+        app:layout_constraintBottom_toTopOf="@+id/img_rating_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_rank_icon"
+        app:layout_constraintVertical_bias="0.0" />
 
-</RelativeLayout>
+    <pl.pawelkleczkowski.customgauge.CustomGauge
+        android:id="@+id/univ_rating_gauge"
+        android:layout_width="83dp"
+        android:layout_height="73dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="64dp"
+        app:gaugeEndValue="5"
+        app:gaugePointEndColor="@android:color/holo_orange_dark"
+        app:gaugeStartAngle="135"
+        app:gaugeStartValue="1"
+        app:gaugeStrokeCap="ROUND"
+        app:gaugeStrokeColor="@android:color/background_dark"
+        app:gaugeStrokeWidth="10dp"
+        app:gaugeSweepAngle="270"
+        app:layout_constraintStart_toEndOf="@+id/img_rating_icon"
+        app:layout_constraintTop_toBottomOf="@+id/univRank" />
+
+</android.support.constraint.ConstraintLayout>
